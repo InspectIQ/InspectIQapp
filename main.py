@@ -21,7 +21,7 @@ app = FastAPI(
 )
 
 # CORS middleware - parse comma-separated origins
-cors_origins = [origin.strip() for origin in settings.cors_origins.split(",")]
+cors_origins = ["*"]  # Allow all origins - TEMPORARY TEST ONLY
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
@@ -61,4 +61,5 @@ async def root():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
 
