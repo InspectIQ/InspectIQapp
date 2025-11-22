@@ -46,6 +46,8 @@ class Settings(BaseSettings):
     app_env: str = "development"
     log_level: str = "INFO"
     frontend_url: str = "http://localhost:3000"
+    cors_origins: str = "http://localhost:3000"  # Comma-separated list of allowed origins
+
     
     class Config:
         env_file = ".env"
