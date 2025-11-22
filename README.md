@@ -1,6 +1,6 @@
 # InspectIQ
 
-AI-powered home inspection and maintenance diagnosis for consumers (landlords, tenants, homeowners, STR hosts).
+AI-powered home inspection and maintenance diagnosis for consumers (landlords, tenants, homeowners, STR hosts and more).
 
 ## Architecture
 
@@ -60,3 +60,4 @@ For maintenance issue triage and repair recommendations.
 - **9 Documentation Files** - Comprehensive guides
 - **Full Test Suite** - End-to-end testing
 - **Docker Ready** - Container deployment support
+
