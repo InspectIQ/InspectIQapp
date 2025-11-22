@@ -1,0 +1,64 @@
+🚀 DEPLOYMENT CHECKLIST - InspectIQ
+=====================================
+
+BEFORE YOU START:
+□ Code is working locally
+□ All tests pass
+□ Code pushed to GitHub
+□ Have OpenAI/Anthropic API keys ready
+
+STEP 1: RAILWAY (Backend) - 3 min
+□ Go to railway.app
+□ Sign in with GitHub
+□ New Project → Deploy from GitHub
+□ Select your repo
+□ Add environment variables:
+  □ SECRET_KEY (generate random string)
+  □ OPENAI_API_KEY
+  □ ANTHROPIC_API_KEY
+□ Generate domain
+□ Copy backend URL: _______________________
+
+STEP 2: VERCEL (Frontend) - 3 min
+□ Go to vercel.com
+□ Sign in with GitHub
+□ Import project from GitHub
+□ Set root directory: frontend
+□ Add environment variable:
+  □ VITE_API_URL = (your Railway URL from Step 1)
+□ Deploy
+□ Copy frontend URL: _______________________
+
+STEP 3: UPDATE CORS - 2 min
+□ Go back to Railway
+□ Add variable: CORS_ORIGINS = (your Vercel URL)
+□ Wait for redeploy
+
+STEP 4: TEST - 2 min
+□ Visit your Vercel URL
+□ Test registration
+□ Test login
+□ Upload photos
+□ Generate report
+□ Download PDF
+
+✅ YOU'RE LIVE!
+
+Frontend: _______________________
+Backend:  _______________________
+
+OPTIONAL NEXT STEPS:
+□ Add custom domain
+□ Set up Google Analytics
+□ Set up error tracking (Sentry)
+□ Set up uptime monitoring
+□ Submit sitemap to Google
+
+COSTS:
+Free tier: $0-5/month
+Paid tier: $30-50/month
+
+SUPPORT:
+- Railway docs: docs.railway.app
+- Vercel docs: vercel.com/docs
+- Check DEPLOYMENT_GUIDE.md for details
