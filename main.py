@@ -6,6 +6,7 @@ from backend.api.auth_routes import router as auth_router
 from backend.api.property_routes import router as property_router
 from backend.api.inspection_routes import router as inspection_router
 from backend.api.file_routes import router as file_router
+from backend.api.admin_routes import router as admin_router
 from backend.database.database import init_db
 from config.settings import get_settings
 from pathlib import Path
@@ -21,7 +22,7 @@ app = FastAPI(
 )
 
 # CORS middleware - parse comma-separated origins
-cors_origins = ["*"]  # Allow all origins - TEMPORARY TEST ONLY
+cors_origins = [origin.strip() for origin in settings.cors_origins.split(",")]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
@@ -44,6 +45,7 @@ app.include_router(auth_router, prefix="/api/v1")
 app.include_router(property_router, prefix="/api/v1")
 app.include_router(inspection_router, prefix="/api/v1")
 app.include_router(file_router, prefix="/api/v1")
+app.include_router(admin_router, prefix="/api/v1")
 app.include_router(workflow_router)  # Legacy workflow routes
 
 
@@ -61,5 +63,3 @@ async def root():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-

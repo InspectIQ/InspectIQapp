@@ -21,6 +21,11 @@ import PropertyDetail from './pages/PropertyDetail'
 import NewInspection from './pages/NewInspection'
 import InspectionDetail from './pages/InspectionDetail'
 import Layout from './components/Layout'
+import AdminLayout from './components/AdminLayout'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminUsers from './pages/admin/AdminUsers'
+import AdminAnalytics from './pages/admin/AdminAnalytics'
+import AdminSystem from './pages/admin/AdminSystem'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
@@ -71,6 +76,36 @@ function App() {
             <Route path="inspections/new" element={<NewInspection />} />
             <Route path="inspections/:id" element={<InspectionDetail />} />
           </Route>
+
+          {/* Admin */}
+          <Route path="/admin" element={
+            <PrivateRoute>
+              <AdminLayout>
+                <AdminDashboard />
+              </AdminLayout>
+            </PrivateRoute>
+          } />
+          <Route path="/admin/users" element={
+            <PrivateRoute>
+              <AdminLayout>
+                <AdminUsers />
+              </AdminLayout>
+            </PrivateRoute>
+          } />
+          <Route path="/admin/analytics" element={
+            <PrivateRoute>
+              <AdminLayout>
+                <AdminAnalytics />
+              </AdminLayout>
+            </PrivateRoute>
+          } />
+          <Route path="/admin/system" element={
+            <PrivateRoute>
+              <AdminLayout>
+                <AdminSystem />
+              </AdminLayout>
+            </PrivateRoute>
+          } />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

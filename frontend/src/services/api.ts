@@ -109,3 +109,33 @@ export const filesAPI = {
     })
   },
 }
+
+// Admin API
+export const adminAPI = {
+  getDashboardStats: () =>
+    api.get('/api/v1/admin/dashboard'),
+  
+  getUsers: (search?: string, role?: string) =>
+    api.get('/api/v1/admin/users', { params: { search, role } }),
+  
+  getUserDetail: (userId: number) =>
+    api.get(`/api/v1/admin/users/${userId}`),
+  
+  updateUserRole: (userId: number, role: string) =>
+    api.put(`/api/v1/admin/users/${userId}/role`, null, { params: { role } }),
+  
+  updateUserStatus: (userId: number, isActive: boolean) =>
+    api.put(`/api/v1/admin/users/${userId}/status`, null, { params: { is_active: isActive } }),
+  
+  deleteUser: (userId: number) =>
+    api.delete(`/api/v1/admin/users/${userId}`),
+  
+  getInspectionAnalytics: (days: number = 30) =>
+    api.get('/api/v1/admin/analytics/inspections', { params: { days } }),
+  
+  getPropertyAnalytics: () =>
+    api.get('/api/v1/admin/analytics/properties'),
+  
+  getSystemMetrics: () =>
+    api.get('/api/v1/admin/system/metrics'),
+}

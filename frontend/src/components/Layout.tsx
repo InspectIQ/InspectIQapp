@@ -56,8 +56,16 @@ export default function Layout() {
                 </Link>
               </div>
             </div>
-            <div className="flex items-center">
-              <span className="text-sm text-gray-700 mr-4">{user?.name}</span>
+            <div className="flex items-center space-x-4">
+              {user?.role === 'admin' && (
+                <Link
+                  to="/admin"
+                  className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                >
+                  Admin Panel
+                </Link>
+              )}
+              <span className="text-sm text-gray-700">{user?.name}</span>
               <button
                 onClick={logout}
                 className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100"
