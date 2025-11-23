@@ -26,6 +26,7 @@ import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminUsers from './pages/admin/AdminUsers'
 import AdminAnalytics from './pages/admin/AdminAnalytics'
 import AdminSystem from './pages/admin/AdminSystem'
+import PromoteAdmin from './pages/PromoteAdmin'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
@@ -62,6 +63,7 @@ function App() {
           {/* Auth */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/promote-admin" element={<PromoteAdmin />} />
           
           {/* App */}
           <Route path="/app" element={
