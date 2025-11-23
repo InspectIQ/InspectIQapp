@@ -4,7 +4,7 @@ from sqlalchemy import func, desc
 from datetime import datetime, timedelta
 from typing import List, Optional
 from backend.database.database import get_db
-from backend.database.models import User, Property, Inspection, Room, Photo
+from backend.database.models import User, Property, Inspection, Room
 from backend.auth.auth import get_current_active_user, require_admin
 from backend.schemas.admin import (
     DashboardStats,
@@ -30,7 +30,9 @@ async def get_dashboard_stats(
     total_users = db.query(func.count(User.id)).scalar()
     total_properties = db.query(func.count(Property.id)).scalar()
     total_inspections = db.query(func.count(Inspection.id)).scalar()
-    total_photos = db.query(func.count(Photo.id)).scalar()
+    # Count photos (stored as JSON arrays in rooms)
+    rooms = db.query(Room).all()
+    total_photos = sum(len(room.photo_urls or []) for room in rooms)
     
     # Active users (logged in last 30 days)
     thirty_days_ago = datetime.utcnow() - timedelta(days=30)
@@ -141,10 +143,11 @@ async def get_user_detail(
         Property.owner_id == user_id
     ).order_by(desc(Inspection.created_at)).limit(10).all()
     
-    # Calculate stats
-    total_photos = db.query(func.count(Photo.id)).join(Room).join(Inspection).join(
-        Property
-    ).filter(Property.owner_id == user_id).scalar()
+    # Calculate stats (photos are stored as JSON in rooms)
+    rooms = db.query(Room).join(Inspection).join(Property).filter(
+        Property.owner_id == user_id
+    ).all()
+    total_photos = sum(len(room.photo_urls or []) for room in rooms)
     
     return {
         "id": user.id,
@@ -167,8 +170,9 @@ async def update_user_role(
     current_user: User = Depends(require_admin)
 ):
     """Update a user's role."""
-    if role not in ["user", "inspector", "admin"]:
-        raise HTTPException(status_code=400, detail="Invalid role")
+    valid_roles = ["owner", "tenant", "manager", "realtor", "admin"]
+    if role not in valid_roles:
+        raise HTTPException(status_code=400, detail=f"Invalid role. Must be one of: {', '.join(valid_roles)}")
     
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
@@ -289,8 +293,10 @@ async def get_system_metrics(
     # API usage (mock - would need actual tracking)
     api_calls_today = 1250
     
-    # Storage usage (mock)
-    storage_used_mb = db.query(func.count(Photo.id)).scalar() * 2.5  # Estimate 2.5MB per photo
+    # Storage usage (estimate based on photos in rooms)
+    rooms = db.query(Room).all()
+    photo_count = sum(len(room.photo_urls or []) for room in rooms)
+    storage_used_mb = photo_count * 2.5  # Estimate 2.5MB per photo
     
     return {
         "total_database_records": total_records,

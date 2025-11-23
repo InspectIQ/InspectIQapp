@@ -123,8 +123,10 @@ export default function AdminUsers() {
               onChange={(e) => setRoleFilter(e.target.value)}
             >
               <option value="">All Roles</option>
-              <option value="user">User</option>
-              <option value="inspector">Inspector</option>
+              <option value="owner">Owner</option>
+              <option value="tenant">Tenant</option>
+              <option value="manager">Manager</option>
+              <option value="realtor">Realtor</option>
               <option value="admin">Admin</option>
             </select>
           </div>
@@ -177,8 +179,10 @@ export default function AdminUsers() {
                     onChange={(e) => handleRoleChange(user.id, e.target.value)}
                     className="text-sm border-gray-300 rounded-md"
                   >
-                    <option value="user">User</option>
-                    <option value="inspector">Inspector</option>
+                    <option value="owner">Owner</option>
+                    <option value="tenant">Tenant</option>
+                    <option value="manager">Manager</option>
+                    <option value="realtor">Realtor</option>
                     <option value="admin">Admin</option>
                   </select>
                 </td>
