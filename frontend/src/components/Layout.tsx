@@ -22,9 +22,9 @@ export default function Layout() {
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                 <Link
-                  to="/"
+                  to="/app"
                   className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                    isActive('/') && location.pathname === '/'
+                    location.pathname === '/app'
                       ? 'border-primary-500 text-gray-900'
                       : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                   }`}
@@ -33,9 +33,9 @@ export default function Layout() {
                   Dashboard
                 </Link>
                 <Link
-                  to="/properties"
+                  to="/app/properties"
                   className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                    isActive('/properties')
+                    location.pathname.startsWith('/app/properties')
                       ? 'border-primary-500 text-gray-900'
                       : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                   }`}
@@ -44,9 +44,9 @@ export default function Layout() {
                   Properties
                 </Link>
                 <Link
-                  to="/inspections"
+                  to="/app/inspections"
                   className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                    isActive('/inspections')
+                    location.pathname.startsWith('/app/inspections')
                       ? 'border-primary-500 text-gray-900'
                       : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                   }`}
