@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Home, Building2, FileText, LogOut } from 'lucide-react'
+import { APP_ROUTES } from '../utils/routes'
 
 export default function Layout() {
   const { user, logout } = useAuth()
@@ -22,9 +23,9 @@ export default function Layout() {
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                 <Link
-                  to="/app"
+                  to={APP_ROUTES.dashboard}
                   className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                    location.pathname === '/app'
+                    location.pathname === APP_ROUTES.dashboard
                       ? 'border-primary-500 text-gray-900'
                       : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                   }`}
@@ -33,9 +34,9 @@ export default function Layout() {
                   Dashboard
                 </Link>
                 <Link
-                  to="/app/properties"
+                  to={APP_ROUTES.properties}
                   className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                    location.pathname.startsWith('/app/properties')
+                    location.pathname.startsWith(APP_ROUTES.properties)
                       ? 'border-primary-500 text-gray-900'
                       : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                   }`}
@@ -44,9 +45,9 @@ export default function Layout() {
                   Properties
                 </Link>
                 <Link
-                  to="/app/inspections"
+                  to={APP_ROUTES.inspections}
                   className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                    location.pathname.startsWith('/app/inspections')
+                    location.pathname.startsWith(APP_ROUTES.inspections)
                       ? 'border-primary-500 text-gray-900'
                       : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                   }`}
@@ -59,7 +60,7 @@ export default function Layout() {
             <div className="flex items-center space-x-4">
               {user?.role === 'admin' && (
                 <Link
-                  to="/admin"
+                  to={APP_ROUTES.admin}
                   className="text-sm font-medium text-primary-600 hover:text-primary-700"
                 >
                   Admin Panel

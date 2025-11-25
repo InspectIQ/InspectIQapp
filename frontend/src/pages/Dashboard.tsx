@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { propertiesAPI, inspectionsAPI } from '../services/api'
 import { Building2, FileText, Plus, TrendingUp } from 'lucide-react'
+import { APP_ROUTES } from '../utils/routes'
 
 export default function Dashboard() {
   const [properties, setProperties] = useState<any[]>([])
@@ -112,14 +113,14 @@ export default function Dashboard() {
         <h2 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Link
-            to="/properties"
+            to={APP_ROUTES.properties}
             className="flex items-center justify-center px-4 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
           >
             <Plus className="w-5 h-5 mr-2" />
             Add New Property
           </Link>
           <Link
-            to="/inspections/new"
+            to={APP_ROUTES.newInspection}
             className="flex items-center justify-center px-4 py-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
           >
             <Plus className="w-5 h-5 mr-2" />
@@ -142,7 +143,7 @@ export default function Dashboard() {
             recentInspections.map((inspection) => (
               <Link
                 key={inspection.id}
-                to={`/inspections/${inspection.id}`}
+                to={APP_ROUTES.inspectionDetail(inspection.id)}
                 className="block px-6 py-4 hover:bg-gray-50"
               >
                 <div className="flex items-center justify-between">
@@ -173,7 +174,7 @@ export default function Dashboard() {
         {recentInspections.length > 0 && (
           <div className="px-6 py-4 border-t border-gray-200">
             <Link
-              to="/inspections"
+              to={APP_ROUTES.inspections}
               className="text-sm font-medium text-primary-600 hover:text-primary-500"
             >
               View all inspections →

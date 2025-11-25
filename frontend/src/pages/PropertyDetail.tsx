@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { propertiesAPI, inspectionsAPI } from '../services/api'
 import { Building2, MapPin, Plus, FileText, ArrowLeft } from 'lucide-react'
+import { APP_ROUTES } from '../utils/routes'
 
 export default function PropertyDetail() {
   const { id } = useParams<{ id: string }>()
@@ -51,7 +52,7 @@ export default function PropertyDetail() {
     <div className="px-4 sm:px-0">
       <div className="mb-6">
         <button
-          onClick={() => navigate('/properties')}
+          onClick={() => navigate(APP_ROUTES.properties)}
           className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700"
         >
           <ArrowLeft className="w-4 h-4 mr-1" />

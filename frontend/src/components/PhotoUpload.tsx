@@ -33,8 +33,9 @@ export default function PhotoUpload({ onPhotosUploaded, maxFiles = 10 }: PhotoUp
 
     try {
       const response = await filesAPI.uploadMultiple(acceptedFiles)
+      const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
       const newPhotos = response.data.files.map((file: any) => ({
-        url: `http://localhost:8000${file.url}`,
+        url: `${apiBaseUrl}${file.url}`,
         name: file.original_filename
       }))
       

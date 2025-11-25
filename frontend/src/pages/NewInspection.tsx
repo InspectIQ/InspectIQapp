@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { propertiesAPI, inspectionsAPI } from '../services/api'
 import { ArrowLeft, Plus, Trash2, Loader } from 'lucide-react'
 import PhotoUpload from '../components/PhotoUpload'
+import { APP_ROUTES } from '../utils/routes'
 
 export default function NewInspection() {
   const navigate = useNavigate()
@@ -142,7 +143,7 @@ export default function NewInspection() {
       await inspectionsAPI.analyze(inspectionId)
 
       // Navigate to inspection detail
-      navigate(`/inspections/${inspectionId}`)
+      navigate(APP_ROUTES.inspectionDetail(inspectionId))
     } catch (error: any) {
       console.error('Failed to create inspection:', error)
       alert(error.response?.data?.detail || 'Failed to create inspection')
