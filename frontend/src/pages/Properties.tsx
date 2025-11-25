@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { propertiesAPI } from '../services/api'
 import { Building2, Plus, MapPin } from 'lucide-react'
 import PropertyForm from '../components/PropertyForm'
+import { APP_ROUTES } from '../utils/routes'
 
 export default function Properties() {
   const [properties, setProperties] = useState<any[]>([])
@@ -84,7 +85,7 @@ export default function Properties() {
           {properties.map((property) => (
             <Link
               key={property.id}
-              to={`/properties/${property.id}`}
+              to={APP_ROUTES.propertyDetail(property.id)}
               className="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow"
             >
               <div className="p-6">

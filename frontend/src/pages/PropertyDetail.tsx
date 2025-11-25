@@ -78,7 +78,7 @@ export default function PropertyDetail() {
             </div>
           </div>
           <Link
-            to={`/inspections/new?property=${property.id}`}
+            to={APP_ROUTES.newInspectionWithProperty(property.id)}
             className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
           >
             <Plus className="w-5 h-5 mr-2" />
@@ -157,7 +157,7 @@ export default function PropertyDetail() {
               </p>
               <div className="mt-6">
                 <Link
-                  to={`/inspections/new?property=${property.id}`}
+                  to={APP_ROUTES.newInspectionWithProperty(property.id)}
                   className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
                 >
                   <Plus className="w-5 h-5 mr-2" />
@@ -169,7 +169,7 @@ export default function PropertyDetail() {
             inspections.map((inspection) => (
               <Link
                 key={inspection.id}
-                to={`/inspections/${inspection.id}`}
+                to={APP_ROUTES.inspectionDetail(inspection.id)}
                 className="block px-6 py-4 hover:bg-gray-50"
               >
                 <div className="flex items-center justify-between">
