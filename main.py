@@ -7,6 +7,7 @@ from backend.api.property_routes import router as property_router
 from backend.api.inspection_routes import router as inspection_router
 from backend.api.file_routes import router as file_router
 from backend.api.admin_routes import router as admin_router
+from backend.api.setup_routes import router as setup_router
 from backend.database.database import init_db
 from config.settings import get_settings
 from pathlib import Path
@@ -39,6 +40,12 @@ Path(settings.upload_dir).mkdir(exist_ok=True)
 async def startup_event():
     """Initialize database tables on startup."""
     init_db()
+    # Run database migrations
+    try:
+        from backend.database.migrate import migrate_database
+        migrate_database()
+    except Exception as e:
+        print(f"Migration warning: {e}")
 
 # Include routes
 app.include_router(auth_router, prefix="/api/v1")
@@ -46,6 +53,7 @@ app.include_router(property_router, prefix="/api/v1")
 app.include_router(inspection_router, prefix="/api/v1")
 app.include_router(file_router, prefix="/api/v1")
 app.include_router(admin_router, prefix="/api/v1")
+app.include_router(setup_router, prefix="/api/v1")  # Temporary - remove after first admin
 app.include_router(workflow_router)  # Legacy workflow routes
 
 
