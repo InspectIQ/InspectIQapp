@@ -14,11 +14,79 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    id: '0',
+    title: 'Introducing the InspectIQ Blog: Your Hub for Property Inspection Insights',
+    excerpt: 'Welcome to our new blog! Get the latest updates on InspectIQ features, industry best practices, and expert tips for property inspections.',
+    category: 'Company News',
+    date: 'Dec 13, 2025',
+    readTime: '3 min read',
+    image: '📝',
+    slug: 'introducing-inspectiq-blog',
+    author: 'InspectIQ Team',
+    tags: ['Blog', 'Company News', 'Updates'],
+    content: `# Introducing the InspectIQ Blog: Your Hub for Property Inspection Insights
+
+We're thrilled to launch the official InspectIQ blog - your new destination for property inspection insights, feature updates, and industry expertise!
+
+## What You'll Find Here
+
+### 🚀 Product Updates
+Stay informed about the latest InspectIQ features and improvements. We're constantly innovating, and we want you to be the first to know about new capabilities that can transform your property inspection workflow.
+
+### 💡 Best Practices
+Learn from industry experts and seasoned property professionals. Our guides cover everything from photography techniques to workflow optimization, helping you get the most out of your inspections.
+
+### 🤖 Technology Insights
+Dive deep into the AI and technology powering InspectIQ. Understand how machine learning enhances property inspections and what the future holds for the industry.
+
+### 📊 Industry Analysis
+Get insights into property management trends, regulatory changes, and market developments that affect your business.
+
+## Recent Highlights
+
+We've already published several in-depth articles covering our latest innovations:
+
+- **Building Code Compliance Detection**: Learn how our AI now identifies potential code violations
+- **Mobile-First Inspections**: Discover why your smartphone is the perfect inspection tool
+- **AI-Powered Analysis**: Understand how machine learning transforms property assessments
+
+## What's Coming Next
+
+We have exciting content planned, including:
+
+- **Case studies** from successful property managers
+- **Video tutorials** for advanced features
+- **Industry interviews** with inspection professionals
+- **Regulatory updates** affecting property inspections
+- **Feature deep-dives** as we release new capabilities
+
+## Stay Connected
+
+### Subscribe for Updates
+Don't miss our latest insights! Subscribe to our newsletter at the bottom of any blog page to get new posts delivered directly to your inbox.
+
+### Share Your Feedback
+We want to hear from you! What topics would you like us to cover? What challenges are you facing in property inspections? [Contact us](/contact) with your suggestions.
+
+### Follow Our Journey
+As we continue to innovate and improve InspectIQ, this blog will be your window into our development process, feature releases, and the future of property inspections.
+
+## Get Started Today
+
+Ready to experience the power of AI-driven property inspections? Our blog posts showcase real features you can use right now.
+
+**[Start your free trial →](/register)** and see how InspectIQ can transform your property inspection workflow.
+
+---
+
+*Welcome to the InspectIQ community! We're excited to share this journey with you.*`
+  },
+  {
     id: '1',
     title: 'Introducing Building Code Compliance: AI-Powered Code Violation Detection',
     excerpt: 'InspectIQ now automatically detects potential building code violations in your property photos, providing state-specific guidance and professional recommendations.',
     category: 'Product Updates',
-    date: 'Jan 15, 2025',
+    date: 'Dec 12, 2025',
     readTime: '6 min read',
     image: '🏗️',
     slug: 'building-code-compliance-ai-detection',
@@ -116,7 +184,7 @@ This feature transforms InspectIQ from a simple inspection tool into a comprehen
     title: 'Mobile-First Property Inspections: Why Your Phone is the Perfect Tool',
     excerpt: 'Discover how InspectIQ\'s mobile-optimized interface makes property inspections faster and more efficient than traditional methods.',
     category: 'Best Practices',
-    date: 'Jan 12, 2025',
+    date: 'Dec 10, 2025',
     readTime: '5 min read',
     image: '📱',
     slug: 'mobile-first-property-inspections',
@@ -198,7 +266,7 @@ The transition to mobile inspections isn't just about technology—it's about wo
     title: 'AI-Powered Property Analysis: How Machine Learning Transforms Inspections',
     excerpt: 'Learn how InspectIQ\'s advanced AI vision technology detects property issues with superhuman accuracy and speed.',
     category: 'Technology',
-    date: 'Jan 8, 2025',
+    date: 'Dec 8, 2025',
     readTime: '8 min read',
     image: '🤖',
     slug: 'ai-powered-property-analysis',
@@ -302,7 +370,7 @@ AI will transform property inspections by:
     title: 'The Complete Property Manager\'s Guide to Digital Inspections',
     excerpt: 'Transform your property management workflow with digital inspections. Learn best practices, time-saving tips, and ROI calculations.',
     category: 'Property Management',
-    date: 'Jan 5, 2025',
+    date: 'Dec 5, 2025',
     readTime: '10 min read',
     image: '🏘️',
     slug: 'property-managers-digital-inspections-guide',
@@ -443,7 +511,7 @@ Managing multiple properties with traditional inspection methods is like trying 
     title: 'Photo Documentation Best Practices: Capturing Property Conditions Like a Pro',
     excerpt: 'Master the art of property photography with professional tips for lighting, angles, and documentation that protects you legally.',
     category: 'Best Practices',
-    date: 'Jan 3, 2025',
+    date: 'Dec 3, 2025',
     readTime: '7 min read',
     image: '📸',
     slug: 'photo-documentation-best-practices',
@@ -583,4 +651,4 @@ Professional photo documentation is both an art and a science. With InspectIQ's 
   }
 ];
 
-export const categories = ['All', 'Product Updates', 'Best Practices', 'Technology', 'Property Management'];
+export const categories = ['All', 'Company News', 'Product Updates', 'Best Practices', 'Technology', 'Property Management'];
