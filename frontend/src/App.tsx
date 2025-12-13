@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { Suspense } from 'react'
 import Landing from './pages/Landing'
 import ForInspectors from './pages/ForInspectors'
 import ForHomeowners from './pages/ForHomeowners'
@@ -28,10 +29,13 @@ import AdminUsers from './pages/admin/AdminUsers'
 import AdminAnalytics from './pages/admin/AdminAnalytics'
 import AdminSystem from './pages/admin/AdminSystem'
 import PromoteAdmin from './pages/PromoteAdmin'
-import PrivacyPolicy from './pages/PrivacyPolicy'
-import TermsOfService from './pages/TermsOfService'
-import ForgotPassword from './pages/ForgotPassword'
-import ResetPassword from './pages/ResetPassword'
+
+import { lazy } from 'react'
+
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
+const TermsOfService = lazy(() => import('./pages/TermsOfService'))
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
+const ResetPassword = lazy(() => import('./pages/ResetPassword'))
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
@@ -65,14 +69,31 @@ function App() {
           <Route path="/comparison" element={<Comparison />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms-of-service" element={<TermsOfService />} />
+
+          <Route path="/privacy-policy" element={
+            <Suspense fallback={<div>Loading...</div>}>
+              <PrivacyPolicy />
+            </Suspense>
+          } />
+          <Route path="/terms-of-service" element={
+            <Suspense fallback={<div>Loading...</div>}>
+              <TermsOfService />
+            </Suspense>
+          } />
           
           {/* Auth */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/forgot-password" element={
+            <Suspense fallback={<div>Loading...</div>}>
+              <ForgotPassword />
+            </Suspense>
+          } />
+          <Route path="/reset-password" element={
+            <Suspense fallback={<div>Loading...</div>}>
+              <ResetPassword />
+            </Suspense>
+          } />
           <Route path="/promote-admin" element={<PromoteAdmin />} />
           
           {/* App */}

@@ -1,4 +1,11 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "frontend/dist",
+  "functions": {
+    "frontend/src/**": {
+      "includeFiles": "frontend/src/**"
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",
