@@ -92,6 +92,34 @@ async def get_current_user_info(current_user: User = Depends(get_current_active_
     return current_user
 
 
+@router.get("/test-migration")
+async def test_migration(db: Session = Depends(get_db)):
+    """Test if database migration worked."""
+    try:
+        # Try to query a user and check if reset fields exist
+        user = db.query(User).first()
+        if user:
+            # Check if the new fields exist
+            has_reset_fields = hasattr(user, 'reset_token_hash') and hasattr(user, 'reset_token_expires')
+            return {
+                "migration_status": "success" if has_reset_fields else "missing_fields",
+                "reset_fields_exist": has_reset_fields,
+                "user_count": db.query(User).count()
+            }
+        else:
+            return {
+                "migration_status": "no_users",
+                "reset_fields_exist": False,
+                "user_count": 0
+            }
+    except Exception as e:
+        return {
+            "migration_status": "error",
+            "error": str(e),
+            "reset_fields_exist": False
+        }
+
+
 @router.post("/forgot-password")
 async def forgot_password(request: PasswordResetRequest, db: Session = Depends(get_db)):
     """Request password reset."""
