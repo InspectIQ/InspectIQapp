@@ -13,6 +13,7 @@ import FAQ from './pages/FAQ'
 import CaseStudies from './pages/CaseStudies'
 import Comparison from './pages/Comparison'
 import Blog from './pages/Blog'
+import BlogPost from './pages/BlogPost'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
@@ -59,6 +60,7 @@ function App() {
           <Route path="/case-studies" element={<CaseStudies />} />
           <Route path="/comparison" element={<Comparison />} />
           <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
           
           {/* Auth */}
           <Route path="/login" element={<Login />} />
