@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from datetime import timedelta
+from datetime import timedelta, datetime
+import secrets
+import hashlib
 from backend.database.database import get_db
 from backend.database.models import User
-from backend.schemas.user import UserCreate, UserResponse, Token, UserLogin
+from backend.schemas.user import UserCreate, UserResponse, Token, UserLogin, PasswordResetRequest, PasswordReset
 from backend.auth.auth import (
     get_password_hash,
     verify_password,
@@ -88,3 +90,55 @@ async def login_json(user_login: UserLogin, db: Session = Depends(get_db)):
 async def get_current_user_info(current_user: User = Depends(get_current_active_user)):
     """Get current user information."""
     return current_user
+
+
+@router.post("/forgot-password")
+async def forgot_password(request: PasswordResetRequest, db: Session = Depends(get_db)):
+    """Request password reset."""
+    user = db.query(User).filter(User.email == request.email).first()
+    if not user:
+        # Don't reveal if email exists or not for security
+        return {"message": "If the email exists, a password reset link has been sent."}
+    
+    # Generate reset token
+    reset_token = secrets.token_urlsafe(32)
+    reset_token_hash = hashlib.sha256(reset_token.encode()).hexdigest()
+    
+    # Store token hash and expiry (24 hours from now)
+    user.reset_token_hash = reset_token_hash
+    user.reset_token_expires = datetime.utcnow() + timedelta(hours=24)
+    db.commit()
+    
+    # In a real app, you would send an email here
+    # For now, we'll just return the token for testing
+    return {
+        "message": "If the email exists, a password reset link has been sent.",
+        "reset_token": reset_token  # Remove this in production
+    }
+
+
+@router.post("/reset-password")
+async def reset_password(request: PasswordReset, db: Session = Depends(get_db)):
+    """Reset password with token."""
+    # Hash the provided token
+    token_hash = hashlib.sha256(request.token.encode()).hexdigest()
+    
+    # Find user with matching token
+    user = db.query(User).filter(
+        User.reset_token_hash == token_hash,
+        User.reset_token_expires > datetime.utcnow()
+    ).first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired reset token"
+        )
+    
+    # Update password and clear reset token
+    user.hashed_password = get_password_hash(request.new_password)
+    user.reset_token_hash = None
+    user.reset_token_expires = None
+    db.commit()
+    
+    return {"message": "Password has been reset successfully"}

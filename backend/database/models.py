@@ -40,6 +40,8 @@ class User(Base):
     role = Column(Enum(UserRole), default=UserRole.OWNER)
     subscription_tier = Column(Enum(SubscriptionTier), default=SubscriptionTier.FREE)
     is_active = Column(Boolean, default=True)
+    reset_token_hash = Column(String, nullable=True)
+    reset_token_expires = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

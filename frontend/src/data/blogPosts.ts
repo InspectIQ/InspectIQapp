@@ -14,6 +14,78 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    id: '7',
+    title: 'Enhanced Security: Password Reset and Account Protection Features',
+    excerpt: 'We\'ve added secure password reset functionality and improved account security measures to keep your property data safe.',
+    category: 'Security',
+    date: 'Dec 13, 2025',
+    readTime: '4 min read',
+    image: '🔐',
+    slug: 'enhanced-security-password-reset',
+    author: 'InspectIQ Security Team',
+    tags: ['Security', 'Features', 'Account Management'],
+    content: `# Enhanced Security: Password Reset and Account Protection Features
+
+Your property data security is our top priority. Today, we're excited to announce several new security enhancements that make your InspectIQ account more secure and easier to manage.
+
+## New Password Reset System
+
+We've implemented a comprehensive password reset system that allows you to securely regain access to your account:
+
+### How It Works
+- **Secure Token Generation**: Each reset request generates a unique, time-limited token
+- **24-Hour Expiry**: Reset links expire after 24 hours for maximum security
+- **One-Time Use**: Each token can only be used once to prevent replay attacks
+- **Email Privacy**: We don't reveal whether an email exists in our system
+
+### Using Password Reset
+1. Click "Forgot Password?" on the login page
+2. Enter your email address
+3. Check your email for the reset link
+4. Follow the link to set your new password
+5. Log in with your new credentials
+
+## Additional Security Improvements
+
+### Account Protection
+- **Secure Password Hashing**: All passwords use industry-standard bcrypt hashing
+- **Token-Based Authentication**: JWT tokens for secure session management
+- **Privacy-First Design**: No sensitive information exposed in error messages
+
+### User Experience Enhancements
+- **Clear Navigation**: Removed all placeholder links from the site
+- **Legal Pages**: Added comprehensive Privacy Policy and Terms of Service
+- **Consistent Routing**: All app routes properly prefixed for reliable navigation
+
+## Best Practices for Account Security
+
+### Strong Passwords
+- Use at least 12 characters
+- Include uppercase, lowercase, numbers, and symbols
+- Avoid common words or personal information
+- Use a unique password for InspectIQ
+
+### Account Monitoring
+- Log out when using shared computers
+- Monitor your account for unusual activity
+- Update your password regularly
+- Keep your email account secure
+
+## What's Next
+
+We're continuously improving our security measures. Upcoming enhancements include:
+- Two-factor authentication (2FA)
+- Advanced session management
+- Security audit logs
+- Enhanced data encryption
+
+## Need Help?
+
+If you have any questions about these security features or need assistance with your account, our support team is here to help. Contact us through the app or visit our FAQ section.
+
+Your trust in InspectIQ drives everything we do. These security enhancements are just the beginning of our commitment to keeping your property inspection data safe and secure.`
+  },
+  {
     id: '0',
     title: 'Introducing the InspectIQ Blog: Your Hub for Property Inspection Insights',
     excerpt: 'Welcome to our new blog! Get the latest updates on InspectIQ features, industry best practices, and expert tips for property inspections.',
