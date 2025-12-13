@@ -23,17 +23,40 @@ class InspectionReportAgent:
 Markdown structure MUST include:
 ## InspectIQ Inspection Report
 ### Property Details
-### Summary (issues count, overall severity, cost range)
+### Executive Summary (issues count, overall severity, cost range, code compliance overview)
+### Code Compliance Assessment (separate section for potential violations)
 ### Room-by-Room Details (group issues by room_name where possible)
-### Recommended Next Steps (clear bullet list)
+### Priority Action Items (urgent safety/code issues first)
+### Recommended Next Steps (clear bullet list including professional consultations)
+### Important Disclaimers
 
-Use a friendly, consumer-focused tone, simple language, and avoid legal advice.
+BUILDING CODE COMPLIANCE SECTION:
+- Highlight any potential code violations found
+- Categorize by system (electrical, plumbing, safety, structural, etc.)
+- Include severity and recommended professional consultation
+- Always include disclaimer about local code variations
+
+PRIORITY SYSTEM:
+1. Critical safety/code violations (immediate attention)
+2. High-priority maintenance issues
+3. Medium-priority repairs
+4. Low-priority cosmetic issues
+
+Use a friendly, consumer-focused tone, simple language, and avoid providing legal advice. Always include appropriate disclaimers about building codes and professional consultation requirements.
+
+REQUIRED DISCLAIMERS:
+- Building code guidance is general only and varies by local jurisdiction
+- Professional inspection recommended for code compliance verification
+- This report is not a substitute for official building inspection
+- Consult local authorities and licensed professionals for official determinations
 
 Output valid JSON with this structure:
 {
   "report_markdown": "string (full markdown content)",
   "report_summary_json": {
     "headline": "string (one sentence summary)",
+    "code_violations_found": number,
+    "priority_issues": number,
     "recommendations": ["string", "string"]
   }
 }"""
