@@ -13,17 +13,7 @@ export default defineConfig({
         assetFileNames: 'assets/[name]-[hash].[ext]'
       }
     },
-    // Ensure no eval is used in production
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true
-      }
-    }
-  },
-  // Disable eval in development too
-  define: {
-    __DEV__: JSON.stringify(false)
+    // Use default esbuild minification (faster and doesn't require terser)
+    minify: 'esbuild'
   }
 })
