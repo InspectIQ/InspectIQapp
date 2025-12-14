@@ -6,8 +6,7 @@ import secrets
 import hashlib
 from backend.database.database import get_db
 from backend.database.models import User
-from backend.schemas.user import UserCreate, UserResponse, Token, UserLogin
-# Temporarily removed: PasswordResetRequest, PasswordReset
+from backend.schemas.user import UserCreate, UserResponse, Token, UserLogin, PasswordResetRequest, PasswordReset
 from backend.auth.auth import (
     get_password_hash,
     verify_password,
@@ -138,8 +137,8 @@ async def test_migration(db: Session = Depends(get_db)):
         }
 
 
-# @router.post("/forgot-password")
-# async def forgot_password(request: PasswordResetRequest, db: Session = Depends(get_db)):
+@router.post("/forgot-password")
+async def forgot_password(request: PasswordResetRequest, db: Session = Depends(get_db)):
     """Request password reset."""
     user = db.query(User).filter(User.email == request.email).first()
     if not user:
@@ -163,8 +162,8 @@ async def test_migration(db: Session = Depends(get_db)):
     }
 
 
-# @router.post("/reset-password")
-# async def reset_password(request: PasswordReset, db: Session = Depends(get_db)):
+@router.post("/reset-password")
+async def reset_password(request: PasswordReset, db: Session = Depends(get_db)):
     """Reset password with token."""
     # Hash the provided token
     token_hash = hashlib.sha256(request.token.encode()).hexdigest()

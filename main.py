@@ -62,7 +62,7 @@ async def root():
     """Root endpoint."""
     return {
         "service": "InspectIQ",
-        "version": "2.0.3",
+        "version": "2.0.4",
         "status": "running",
         "features": ["auth", "properties", "inspections", "ai-analysis", "file-upload", "pdf-export", "password-reset"]
     }
