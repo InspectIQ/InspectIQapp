@@ -13,6 +13,7 @@ from backend.auth.auth import (
     create_access_token,
     get_current_active_user
 )
+from backend.services.email_service import EmailService
 from config.settings import get_settings
 
 settings = get_settings()
@@ -40,6 +41,12 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+    
+    # Send welcome email (don't fail registration if email fails)
+    try:
+        await EmailService.send_welcome_email(db_user.email, db_user.name)
+    except Exception as e:
+        print(f"Failed to send welcome email: {e}")
     
     return db_user
 
@@ -154,12 +161,29 @@ async def forgot_password(request: PasswordResetRequest, db: Session = Depends(g
     user.reset_token_expires = datetime.utcnow() + timedelta(hours=24)
     db.commit()
     
-    # In a real app, you would send an email here
-    # For now, we'll just return the token for testing
-    return {
-        "message": "If the email exists, a password reset link has been sent.",
-        "reset_token": reset_token  # Remove this in production
-    }
+    # Send password reset email
+    try:
+        email_sent = await EmailService.send_password_reset_email(
+            user.email, 
+            reset_token, 
+            user.name
+        )
+        if email_sent:
+            return {"message": "If the email exists, a password reset link has been sent."}
+        else:
+            # Email service not configured, return token for development
+            return {
+                "message": "If the email exists, a password reset link has been sent.",
+                "reset_token": reset_token,  # Remove this in production
+                "note": "Email service not configured - using development mode"
+            }
+    except Exception as e:
+        print(f"Failed to send password reset email: {e}")
+        return {
+            "message": "If the email exists, a password reset link has been sent.",
+            "reset_token": reset_token,  # Remove this in production
+            "note": "Email service error - using development mode"
+        }
 
 
 @router.post("/reset-password")

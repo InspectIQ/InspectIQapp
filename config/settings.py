@@ -42,12 +42,15 @@ class Settings(BaseSettings):
     stripe_api_key: str = ""
     stripe_webhook_secret: str = ""
     
+    # Email
+    resend_api_key: str = ""
+    email_domain: str = "inspectiq.app"  # Your domain for sending emails
+    
     # App
     app_env: str = "development"
     log_level: str = "INFO"
     frontend_url: str = "http://localhost:3000"
     cors_origins: str = "http://localhost:3000"  # Comma-separated list of allowed origins
-
     
     class Config:
         env_file = ".env"

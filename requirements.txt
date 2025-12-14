@@ -30,3 +30,6 @@ markdown2==2.4.12
 
 # Payments
 stripe==7.8.0
+
+# Email
+resend==0.8.0
