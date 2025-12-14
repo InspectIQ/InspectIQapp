@@ -110,11 +110,38 @@ async def test_endpoints():
             "/me",
             "/test-migration",
             "/test-endpoints",
+            "/test-email",
             "/forgot-password",
             "/reset-password"
         ],
         "message": "All auth endpoints should be available"
     }
+
+@router.get("/test-email")
+async def test_email():
+    """Test email service configuration."""
+    try:
+        from backend.services.email_service import EmailService
+        
+        # Check if API key is configured
+        api_key_configured = bool(settings.resend_api_key)
+        
+        # Test email sending (without actually sending)
+        test_result = {
+            "resend_api_key_configured": api_key_configured,
+            "resend_api_key_length": len(settings.resend_api_key) if settings.resend_api_key else 0,
+            "email_domain": settings.email_domain,
+            "frontend_url": settings.frontend_url,
+            "api_key_starts_with_re": settings.resend_api_key.startswith("re_") if settings.resend_api_key else False
+        }
+        
+        return test_result
+        
+    except Exception as e:
+        return {
+            "error": str(e),
+            "resend_api_key_configured": False
+        }
 
 @router.get("/test-migration")
 async def test_migration(db: Session = Depends(get_db)):
@@ -161,28 +188,42 @@ async def forgot_password(request: PasswordResetRequest, db: Session = Depends(g
     user.reset_token_expires = datetime.utcnow() + timedelta(hours=24)
     db.commit()
     
+    # Debug info
+    debug_info = {
+        "resend_api_key_configured": bool(settings.resend_api_key),
+        "resend_api_key_length": len(settings.resend_api_key) if settings.resend_api_key else 0,
+        "email_domain": settings.email_domain,
+        "frontend_url": settings.frontend_url
+    }
+    
     # Send password reset email
     try:
+        from backend.services.email_service import EmailService
         email_sent = await EmailService.send_password_reset_email(
             user.email, 
             reset_token, 
             user.name
         )
         if email_sent:
-            return {"message": "If the email exists, a password reset link has been sent."}
+            return {
+                "message": "If the email exists, a password reset link has been sent.",
+                "debug": debug_info
+            }
         else:
             # Email service not configured, return token for development
             return {
                 "message": "If the email exists, a password reset link has been sent.",
                 "reset_token": reset_token,  # Remove this in production
-                "note": "Email service not configured - using development mode"
+                "note": "Email service not configured - using development mode",
+                "debug": debug_info
             }
     except Exception as e:
         print(f"Failed to send password reset email: {e}")
         return {
             "message": "If the email exists, a password reset link has been sent.",
             "reset_token": reset_token,  # Remove this in production
-            "note": "Email service error - using development mode"
+            "note": f"Email service error: {str(e)}",
+            "debug": debug_info
         }
 
 
