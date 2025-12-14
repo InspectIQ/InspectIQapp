@@ -42,6 +42,12 @@ export const authAPI = {
   
   getCurrentUser: () =>
     api.get('/api/v1/auth/me'),
+  
+  forgotPassword: (email: string) =>
+    api.post('/api/v1/auth/forgot-password', { email }),
+  
+  resetPassword: (token: string, new_password: string) =>
+    api.post('/api/v1/auth/reset-password', { token, new_password }),
 }
 
 // Properties API
