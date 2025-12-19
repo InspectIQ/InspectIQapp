@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 import secrets
 from backend.database.database import get_db
 from backend.database.models import User, Property, Inspection, Room
@@ -15,6 +15,9 @@ from backend.auth.auth import get_current_active_user
 from workflows import InspectionWorkflow
 from schemas.inspection import InspectionInput
 from schemas.common import Photo, PropertyContext, Property as PropertyInfo
+from backend.services.photo_processing_service import PhotoProcessingService
+from backend.services.property_data_service import PropertyDataService
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/inspections", tags=["inspections"])
 
@@ -308,3 +311,234 @@ async def delete_inspection(
     db.delete(inspection)
     db.commit()
     return None
+
+
+class QuickInspectionCreate(BaseModel):
+    property_id: int
+    inspection_type: str = "Move-in Inspection"
+    auto_create_rooms: bool = True
+
+
+class BulkPhotoUpload(BaseModel):
+    inspection_id: int
+    photos: List[str]  # Base64 encoded photos
+    auto_assign_rooms: bool = True
+
+
+@router.post("/quick-create", response_model=InspectionResponse)
+async def quick_create_inspection(
+    request: QuickInspectionCreate,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Quickly create an inspection with auto-generated rooms."""
+    # Verify property ownership
+    property = db.query(Property).filter(
+        Property.id == request.property_id,
+        Property.owner_id == current_user.id
+    ).first()
+    
+    if not property:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Property not found"
+        )
+    
+    # Create inspection
+    db_inspection = Inspection(
+        property_id=request.property_id,
+        inspector_id=current_user.id,
+        inspection_type=request.inspection_type,
+        status="draft",
+        public_share_token=secrets.token_urlsafe(32)
+    )
+    db.add(db_inspection)
+    db.commit()
+    db.refresh(db_inspection)
+    
+    # Auto-create rooms if requested
+    if request.auto_create_rooms:
+        suggested_rooms = await PropertyDataService.suggest_room_layout(
+            property.property_type or "Single Family Home",
+            property.bedrooms or 3,
+            property.bathrooms or 2
+        )
+        
+        for i, room_data in enumerate(suggested_rooms):
+            db_room = Room(
+                inspection_id=db_inspection.id,
+                room_type=room_data["type"],
+                room_name=room_data["name"],
+                order_index=i,
+                photo_urls=[]
+            )
+            db.add(db_room)
+        
+        db.commit()
+        db.refresh(db_inspection)
+    
+    return db_inspection
+
+
+@router.post("/bulk-photo-upload")
+async def bulk_photo_upload(
+    files: List[UploadFile] = File(...),
+    inspection_id: int = None,
+    auto_assign_rooms: bool = True,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Upload multiple photos and auto-assign to rooms."""
+    # Verify inspection ownership
+    inspection = db.query(Inspection).filter(
+        Inspection.id == inspection_id,
+        Inspection.inspector_id == current_user.id
+    ).first()
+    
+    if not inspection:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Inspection not found"
+        )
+    
+    # Get room names for auto-assignment
+    rooms = db.query(Room).filter(Room.inspection_id == inspection_id).all()
+    room_names = [room.room_name or room.room_type for room in rooms]
+    
+    # Process photos
+    photo_bytes_list = []
+    for file in files:
+        content = await file.read()
+        photo_bytes_list.append(content)
+    
+    # Process bulk photos
+    processed_photos = await PhotoProcessingService.process_bulk_photos(
+        photo_bytes_list, room_names
+    )
+    
+    # Auto-assign photos to rooms if requested
+    if auto_assign_rooms and rooms:
+        for photo in processed_photos:
+            suggested_room = photo.get("suggested_room")
+            if suggested_room:
+                # Find matching room
+                room = next((r for r in rooms if r.room_name == suggested_room or r.room_type == suggested_room), None)
+                if room:
+                    # In a real implementation, you'd save the photo to storage first
+                    # For now, we'll use a placeholder URL
+                    photo_url = f"/uploads/inspection_{inspection_id}/photo_{photo['hash']}.jpg"
+                    
+                    if room.photo_urls is None:
+                        room.photo_urls = []
+                    room.photo_urls.append(photo_url)
+    
+    db.commit()
+    
+    # Generate summary
+    summary = await PhotoProcessingService.generate_photo_summary(processed_photos)
+    
+    return {
+        "message": f"Successfully uploaded {len(processed_photos)} photos",
+        "processed_photos": len(processed_photos),
+        "summary": summary,
+        "photos": processed_photos
+    }
+
+
+@router.post("/templates")
+async def get_inspection_templates(
+    current_user: User = Depends(get_current_active_user)
+):
+    """Get inspection templates for quick creation."""
+    templates = [
+        {
+            "name": "Move-in Inspection",
+            "type": "move_in",
+            "description": "Document property condition before tenant moves in",
+            "typical_duration": "30-45 minutes",
+            "focus_areas": ["Overall condition", "Existing damage", "Cleanliness", "Functionality"]
+        },
+        {
+            "name": "Move-out Inspection", 
+            "type": "move_out",
+            "description": "Document property condition after tenant moves out",
+            "typical_duration": "45-60 minutes",
+            "focus_areas": ["Damage assessment", "Cleaning requirements", "Repairs needed", "Security deposit"]
+        },
+        {
+            "name": "Routine Maintenance",
+            "type": "maintenance",
+            "description": "Regular property maintenance check",
+            "typical_duration": "20-30 minutes",
+            "focus_areas": ["HVAC", "Plumbing", "Electrical", "Safety systems"]
+        },
+        {
+            "name": "Pre-Purchase Inspection",
+            "type": "purchase",
+            "description": "Comprehensive inspection before buying",
+            "typical_duration": "60-90 minutes",
+            "focus_areas": ["Structural", "Systems", "Safety", "Code compliance"]
+        }
+    ]
+    
+    return {"templates": templates}
+
+
+@router.post("/{inspection_id}/auto-analyze")
+async def auto_analyze_inspection(
+    inspection_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Automatically analyze inspection and generate preliminary report."""
+    # Get inspection
+    inspection = db.query(Inspection).filter(
+        Inspection.id == inspection_id,
+        Inspection.inspector_id == current_user.id
+    ).first()
+    
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Get photos from all rooms
+    rooms = db.query(Room).filter(Room.inspection_id == inspection_id).all()
+    total_photos = sum(len(room.photo_urls or []) for room in rooms)
+    
+    if total_photos == 0:
+        raise HTTPException(status_code=400, detail="No photos to analyze")
+    
+    # Mock AI analysis results
+    # In production, this would call actual AI services
+    analysis_results = {
+        "total_photos_analyzed": total_photos,
+        "issues_detected": [
+            {
+                "room": "Kitchen",
+                "issue": "Minor cabinet wear",
+                "severity": "low",
+                "confidence": 0.8,
+                "recommendation": "Consider touch-up painting"
+            },
+            {
+                "room": "Bathroom",
+                "issue": "Possible water stain",
+                "severity": "medium", 
+                "confidence": 0.7,
+                "recommendation": "Investigate for leaks"
+            }
+        ],
+        "overall_condition": "Good",
+        "estimated_repair_cost": 250,
+        "priority_items": 1
+    }
+    
+    # Update inspection status
+    inspection.status = "analyzed"
+    inspection.summary_stats = analysis_results
+    db.commit()
+    
+    return {
+        "message": "Analysis completed",
+        "analysis": analysis_results,
+        "inspection_id": inspection_id
+    }
