@@ -207,22 +207,29 @@ async def forgot_password(request: PasswordResetRequest, db: Session = Depends(g
         if email_sent:
             return {
                 "message": "If the email exists, a password reset link has been sent.",
+                "status": "email_sent_successfully",
                 "debug": debug_info
             }
         else:
-            # Email service not configured, return token for development
+            # Email service returned False
             return {
                 "message": "If the email exists, a password reset link has been sent.",
                 "reset_token": reset_token,  # Remove this in production
-                "note": "Email service not configured - using development mode",
+                "status": "email_send_failed",
+                "note": "Email service returned False - check Resend API key and logs",
                 "debug": debug_info
             }
     except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
         print(f"Failed to send password reset email: {e}")
+        print(f"Full error: {error_details}")
         return {
             "message": "If the email exists, a password reset link has been sent.",
             "reset_token": reset_token,  # Remove this in production
+            "status": "email_service_exception",
             "note": f"Email service error: {str(e)}",
+            "error_type": type(e).__name__,
             "debug": debug_info
         }
 

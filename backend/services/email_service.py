@@ -80,7 +80,7 @@ class EmailService:
                     </div>
                     <div class="footer">
                         <p>This email was sent by InspectIQ - AI-Powered Property Inspection Software</p>
-                        <p>If you have questions, contact us at support@inspectiq.app</p>
+                        <p>If you have questions, contact us at support@inspect-iq.app</p>
                     </div>
                 </div>
             </body>
@@ -105,7 +105,7 @@ class EmailService:
             If you're having trouble, go to {settings.frontend_url}/forgot-password and request a new reset link.
             
             This email was sent by InspectIQ - AI-Powered Property Inspection Software
-            If you have questions, contact us at support@inspectiq.app
+            If you have questions, contact us at support@inspect-iq.app
             """
             
             # Send email using Resend

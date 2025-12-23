@@ -170,7 +170,7 @@ export default function TermsOfService() {
                 For questions about these Terms:
               </p>
               <div className="bg-gray-50 p-6 rounded-lg">
-                <p className="text-gray-700 mb-2"><strong>Email:</strong> legal@inspectiq.app</p>
+                <p className="text-gray-700 mb-2"><strong>Email:</strong> legal@inspect-iq.app</p>
                 <p className="text-gray-700 mb-2"><strong>Address:</strong> InspectIQ Legal Team</p>
                 <p className="text-gray-700">123 Innovation Drive, Tech City, TC 12345</p>
               </div>

@@ -80,11 +80,11 @@ export default function Landing() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "InspectIQ",
-    "url": "https://inspectiq.app",
+    "url": "https://inspect-iq.app",
     "description": "AI-powered property inspection software",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://inspectiq.app/search?q={search_term_string}",
+      "target": "https://inspect-iq.app/search?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   }

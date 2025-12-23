@@ -145,7 +145,7 @@ export default function PrivacyPolicy() {
                 If you have questions about this privacy policy or your personal information:
               </p>
               <div className="bg-gray-50 p-6 rounded-lg">
-                <p className="text-gray-700 mb-2"><strong>Email:</strong> privacy@inspectiq.app</p>
+                <p className="text-gray-700 mb-2"><strong>Email:</strong> privacy@inspect-iq.app</p>
                 <p className="text-gray-700 mb-2"><strong>Address:</strong> InspectIQ Privacy Team</p>
                 <p className="text-gray-700">123 Innovation Drive, Tech City, TC 12345</p>
               </div>

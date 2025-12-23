@@ -175,7 +175,7 @@ Quick Actions is available now for all InspectIQ users. Log in to your dashboard
 
 ---
 
-*Have questions about Quick Actions or want to share your success story? Contact our team at support@inspectiq.app or join the conversation on our community forum.*
+*Have questions about Quick Actions or want to share your success story? Contact our team at support@inspect-iq.app or join the conversation on our community forum.*
 
 ## Key Takeaways
 
