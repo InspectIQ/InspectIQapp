@@ -8,13 +8,5 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ],
-  "redirects": [
-    {
-      "source": "/(.*)",
-      "destination": "https://inspect-iq.app/$1",
-      "permanent": true,
-      "host": "inspect-iqapp.vercel.app"
-    }
   ]
 }
