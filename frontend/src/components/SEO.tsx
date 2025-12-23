@@ -21,7 +21,7 @@ export default function SEO({
   structuredData
 }: SEOProps) {
   const location = useLocation()
-  const baseUrl = 'https://inspectiq.app' // Update with your actual domain
+  const baseUrl = 'https://inspect-iq.app' // Update with your actual domain
   const fullUrl = canonical || `${baseUrl}${location.pathname}`
   const fullTitle = `${title} | InspectIQ - AI-Powered Property Inspections`
 
