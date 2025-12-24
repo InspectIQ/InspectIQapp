@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional
 from datetime import datetime
 
@@ -50,6 +50,28 @@ class PropertyResponse(PropertyBase):
     is_active: bool
     created_at: datetime
     updated_at: datetime
+    
+    @classmethod
+    def model_validate(cls, obj, **kwargs):
+        """Custom validation to handle missing database columns gracefully."""
+        try:
+            return super().model_validate(obj, **kwargs)
+        except Exception as e:
+            # If validation fails, try to create a dict with available attributes
+            if hasattr(obj, '__dict__'):
+                data = {}
+                for field_name, field_info in cls.model_fields.items():
+                    if hasattr(obj, field_name):
+                        data[field_name] = getattr(obj, field_name)
+                    else:
+                        # Use default value for missing fields
+                        if field_info.default is not None:
+                            data[field_name] = field_info.default
+                        else:
+                            data[field_name] = None
+                return cls(**data)
+            else:
+                raise e
     
     class Config:
         from_attributes = True

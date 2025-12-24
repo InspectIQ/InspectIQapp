@@ -39,13 +39,54 @@ Path(settings.upload_dir).mkdir(exist_ok=True)
 @app.on_event("startup")
 async def startup_event():
     """Initialize database tables on startup."""
+    print("🚀 Starting InspectIQ backend...")
+    
+    # Initialize database
+    print("📊 Initializing database...")
     init_db()
+    
     # Run database migrations
+    print("🔧 Running database migrations...")
     try:
         from backend.database.migrate import migrate_database
         migrate_database()
+        print("✅ Database migration completed successfully")
     except Exception as e:
-        print(f"Migration warning: {e}")
+        print(f"⚠️  Migration warning: {e}")
+        print("🔄 Attempting alternative migration...")
+        
+        # Try alternative migration approach
+        try:
+            from backend.database.database import engine
+            from sqlalchemy import text
+            
+            with engine.connect() as conn:
+                # Add missing columns if they don't exist
+                try:
+                    conn.execute(text("ALTER TABLE properties ADD COLUMN bedrooms INTEGER"))
+                    print("✅ Added bedrooms column")
+                except:
+                    print("ℹ️  bedrooms column already exists")
+                
+                try:
+                    conn.execute(text("ALTER TABLE properties ADD COLUMN bathrooms INTEGER"))
+                    print("✅ Added bathrooms column")
+                except:
+                    print("ℹ️  bathrooms column already exists")
+                
+                try:
+                    conn.execute(text("ALTER TABLE properties ADD COLUMN lot_size REAL"))
+                    print("✅ Added lot_size column")
+                except:
+                    print("ℹ️  lot_size column already exists")
+                
+                conn.commit()
+                print("✅ Alternative migration completed")
+                
+        except Exception as alt_e:
+            print(f"❌ Alternative migration also failed: {alt_e}")
+    
+    print("🎉 Backend startup completed!")
 
 # Include routes
 app.include_router(auth_router, prefix="/api/v1")

@@ -1,56 +1,86 @@
-"""
-Temporary setup routes for initial admin creation.
-REMOVE THIS FILE after creating your first admin!
-"""
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from backend.database.database import get_db
-from backend.database.models import User
-from pydantic import BaseModel
-import os
+from fastapi import APIRouter, HTTPException
+from backend.database.migrate import migrate_database
+from backend.database.database import engine
+from sqlalchemy import text, inspect
 
 router = APIRouter(prefix="/setup", tags=["setup"])
 
-# Secret key to protect this endpoint
-SETUP_SECRET = os.getenv("SETUP_SECRET", "change-this-secret-key-in-production")
-
-
-@router.get("/promote-kevin")
-async def promote_kevin(db: Session = Depends(get_db)):
-    """
-    One-time endpoint to promote kevin.colahan@gmail.com to admin.
-    No parameters needed!
-    """
-    
-    # Find user
-    user = db.query(User).filter(User.email == "kevin.colahan@gmail.com").first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User kevin.colahan@gmail.com not found. Please register first at /register")
-    
-    # Update role
-    old_role = user.role
-    user.role = "admin"
-    db.commit()
-    db.refresh(user)
-    
-    return {
-        "success": True,
-        "message": f"Kevin promoted to admin!",
-        "instructions": "Log out and log back in to see the Admin Panel link.",
-        "user": {
-            "id": user.id,
-            "email": user.email,
-            "name": user.name,
-            "old_role": str(old_role),
-            "new_role": str(user.role)
+@router.post("/migrate")
+async def run_migration():
+    """Run database migration manually - REMOVE AFTER FIRST USE"""
+    try:
+        print("🔧 Running manual database migration...")
+        migrate_database()
+        
+        # Verify columns exist
+        inspector = inspect(engine)
+        columns = [col['name'] for col in inspector.get_columns('properties')]
+        
+        return {
+            "success": True,
+            "message": "Migration completed successfully",
+            "columns": columns,
+            "has_bedrooms": "bedrooms" in columns,
+            "has_bathrooms": "bathrooms" in columns,
+            "has_lot_size": "lot_size" in columns
         }
-    }
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"Migration failed: {str(e)}",
+            "error": str(e)
+        }
 
+@router.get("/check-columns")
+async def check_database_columns():
+    """Check if the new columns exist in the database"""
+    try:
+        inspector = inspect(engine)
+        columns = [col['name'] for col in inspector.get_columns('properties')]
+        
+        return {
+            "columns": columns,
+            "has_bedrooms": "bedrooms" in columns,
+            "has_bathrooms": "bathrooms" in columns,
+            "has_lot_size": "lot_size" in columns,
+            "missing_columns": [col for col in ["bedrooms", "bathrooms", "lot_size"] if col not in columns]
+        }
+    except Exception as e:
+        return {
+            "error": str(e)
+        }
 
-@router.get("/check")
-async def check_setup():
-    """Check if setup routes are accessible."""
-    return {
-        "message": "Setup routes are active!",
-        "instruction": "Go to /api/v1/setup/promote-kevin to become admin"
-    }
+@router.post("/force-add-columns")
+async def force_add_columns():
+    """Force add missing columns - EMERGENCY USE ONLY"""
+    try:
+        results = []
+        
+        with engine.connect() as conn:
+            # Try to add each column
+            for column_name, column_type in [
+                ("bedrooms", "INTEGER"),
+                ("bathrooms", "INTEGER"), 
+                ("lot_size", "REAL")
+            ]:
+                try:
+                    conn.execute(text(f"ALTER TABLE properties ADD COLUMN {column_name} {column_type}"))
+                    results.append(f"✅ Added {column_name} column")
+                except Exception as e:
+                    if "already exists" in str(e).lower() or "duplicate column" in str(e).lower():
+                        results.append(f"ℹ️  {column_name} column already exists")
+                    else:
+                        results.append(f"❌ Failed to add {column_name}: {str(e)}")
+            
+            conn.commit()
+        
+        return {
+            "success": True,
+            "results": results
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
