@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from api.routes import router as workflow_router
 from backend.api.auth_routes import router as auth_router
 from backend.api.property_routes import router as property_router
 from backend.api.inspection_routes import router as inspection_router
@@ -11,6 +10,7 @@ from backend.api.setup_routes import router as setup_router
 from backend.database.database import init_db
 from config.settings import get_settings
 from pathlib import Path
+import os
 
 # Initialize settings
 settings = get_settings()
@@ -95,7 +95,14 @@ app.include_router(inspection_router, prefix="/api/v1")
 app.include_router(file_router, prefix="/api/v1")
 app.include_router(admin_router, prefix="/api/v1")
 app.include_router(setup_router, prefix="/api/v1")  # Temporary - remove after first admin
-app.include_router(workflow_router)  # Legacy workflow routes
+
+# Add legacy workflow routes if available
+try:
+    from api.routes import router as workflow_router
+    app.include_router(workflow_router)  # Legacy workflow routes
+    print("✅ Legacy workflow routes loaded")
+except ImportError as e:
+    print(f"⚠️  Legacy workflow routes not available: {e}")
 
 
 @app.get("/")
@@ -105,10 +112,22 @@ async def root():
         "service": "InspectIQ",
         "version": "2.0.4",
         "status": "running",
-        "features": ["auth", "properties", "inspections", "ai-analysis", "file-upload", "pdf-export", "password-reset"]
+        "features": ["auth", "properties", "inspections", "ai-analysis", "file-upload", "pdf-export", "password-reset"],
+        "environment": os.environ.get("RAILWAY_ENVIRONMENT", "unknown")
+    }
+
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for Railway."""
+    return {
+        "status": "healthy",
+        "service": "InspectIQ",
+        "version": "2.0.4"
     }
 
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
