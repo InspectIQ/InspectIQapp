@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MagnifyingGlassIcon, SparklesIcon } from '@heroicons/react/24/outline'
+import { Sparkles } from 'lucide-react'
 import { propertiesAPI } from '../services/api'
 import AddressAutocomplete from './AddressAutocomplete'
 
@@ -200,7 +200,7 @@ export default function PropertyForm({ onSuccess, onCancel }: PropertyFormProps)
                 {lookupLoading ? (
                   <div className="animate-spin h-4 w-4 border-2 border-gray-300 border-t-primary-600 rounded-full"></div>
                 ) : (
-                  <SparklesIcon className="h-4 w-4" />
+                  <Sparkles className="h-4 w-4" />
                 )}
               </button>
             </div>
