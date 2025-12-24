@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from typing import Optional, List
+from pydantic import BaseModel, field_validator
+from typing import Optional, List, Union
 from datetime import datetime
 from backend.database.models import InspectionType
 
@@ -24,8 +24,20 @@ class RoomResponse(BaseModel):
 
 class InspectionCreate(BaseModel):
     property_id: int
-    inspection_type: InspectionType
+    inspection_type: Union[InspectionType, str]
     notes: Optional[str] = None
+    
+    @field_validator('inspection_type')
+    @classmethod
+    def validate_inspection_type(cls, v):
+        if isinstance(v, str):
+            try:
+                return InspectionType(v)
+            except ValueError:
+                # If the string doesn't match an enum value, try to find a close match
+                valid_values = [e.value for e in InspectionType]
+                raise ValueError(f"Invalid inspection_type. Must be one of: {valid_values}")
+        return v
 
 
 class InspectionResponse(BaseModel):
