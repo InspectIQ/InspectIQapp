@@ -155,12 +155,12 @@ Comprehensive backend improvements for bulletproof inspection creation.
 ### Database Schema Evolution
 We've enhanced our property model to support modern real estate data:
 
-```sql
+\`\`\`sql
 -- New property fields
 ALTER TABLE properties ADD COLUMN bedrooms INTEGER;
 ALTER TABLE properties ADD COLUMN bathrooms INTEGER;
 ALTER TABLE properties ADD COLUMN lot_size FLOAT;
-```
+\`\`\`
 
 ### Smart Migration Strategy
 - **Zero-downtime deployment** with backward compatibility
