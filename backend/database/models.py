@@ -68,9 +68,14 @@ class Property(Base):
     # Property details
     unit_number = Column(String)
     property_type = Column(String)  # apartment, house, condo, etc.
-    num_rooms = Column(Integer)
+    bedrooms = Column(Integer)
+    bathrooms = Column(Integer)
     square_feet = Column(Float)
     year_built = Column(Integer)
+    lot_size = Column(Float)  # in acres
+    
+    # Legacy field for backward compatibility
+    num_rooms = Column(Integer)
     
     # Metadata
     notes = Column(Text)

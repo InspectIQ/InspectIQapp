@@ -117,36 +117,66 @@ export default function NewInspection() {
 
     setLoading(true)
     try {
+      console.log('Creating inspection with data:', {
+        property_id: parseInt(selectedProperty),
+        inspection_type: inspectionType
+      })
+
       // Create inspection
       const inspectionRes = await inspectionsAPI.create({
         property_id: parseInt(selectedProperty),
         inspection_type: inspectionType
       })
+      
+      console.log('Inspection created:', inspectionRes.data)
       const inspectionId = inspectionRes.data.id
 
       // Add rooms and photos
-      for (const room of rooms) {
+      for (let i = 0; i < rooms.length; i++) {
+        const room = rooms[i]
+        console.log(`Adding room ${i + 1}:`, {
+          room_type: room.room_type,
+          room_name: room.room_name || room.room_type.replace('_', ' '),
+          order_index: i
+        })
+
         const roomRes = await inspectionsAPI.addRoom(inspectionId, {
           room_type: room.room_type,
-          room_name: room.room_name || room.room_type.replace('_', ' ')
+          room_name: room.room_name || room.room_type.replace('_', ' '),
+          order_index: i
         })
+        
+        console.log('Room created:', roomRes.data)
         const roomId = roomRes.data.id
 
         // Add photos
         for (const photoUrl of room.photo_urls) {
+          console.log('Adding photo:', photoUrl)
           await inspectionsAPI.addPhoto(inspectionId, roomId, photoUrl)
         }
       }
 
       // Analyze
-      setAnalyzing(true)
-      await inspectionsAPI.analyze(inspectionId)
+      if (rooms.some(room => room.photo_urls.length > 0)) {
+        console.log('Starting analysis...')
+        setAnalyzing(true)
+        await inspectionsAPI.analyze(inspectionId)
+      }
 
       // Navigate to inspection detail
       navigate(APP_ROUTES.inspectionDetail(inspectionId))
     } catch (error: any) {
       console.error('Failed to create inspection:', error)
-      alert(error.response?.data?.detail || 'Failed to create inspection')
+      console.error('Error response:', error.response?.data)
+      
+      let errorMessage = 'Failed to create inspection'
+      if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+      
+      alert(errorMessage)
     } finally {
       setLoading(false)
       setAnalyzing(false)

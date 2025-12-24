@@ -12,9 +12,13 @@ class PropertyBase(BaseModel):
     country: str = "USA"
     unit_number: Optional[str] = None
     property_type: Optional[str] = None
-    num_rooms: Optional[int] = None
+    bedrooms: Optional[int] = None
+    bathrooms: Optional[int] = None
     square_feet: Optional[float] = None
     year_built: Optional[int] = None
+    lot_size: Optional[float] = None
+    # Legacy field for backward compatibility
+    num_rooms: Optional[int] = None
     notes: Optional[str] = None
 
 
@@ -30,9 +34,13 @@ class PropertyUpdate(BaseModel):
     postal_code: Optional[str] = None
     unit_number: Optional[str] = None
     property_type: Optional[str] = None
-    num_rooms: Optional[int] = None
+    bedrooms: Optional[int] = None
+    bathrooms: Optional[int] = None
     square_feet: Optional[float] = None
     year_built: Optional[int] = None
+    lot_size: Optional[float] = None
+    # Legacy field for backward compatibility
+    num_rooms: Optional[int] = None
     notes: Optional[str] = None
 
 

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { MagnifyingGlassIcon, SparklesIcon } from '@heroicons/react/24/outline'
 import { propertiesAPI } from '../services/api'
 import AddressAutocomplete from './AddressAutocomplete'
 
@@ -28,13 +29,57 @@ export default function PropertyForm({ onSuccess, onCancel }: PropertyFormProps)
     postal_code: '',
     unit_number: '',
     property_type: defaults.property_type || 'apartment',
-    num_rooms: '',
+    bedrooms: '',
+    bathrooms: '',
     square_feet: '',
     year_built: '',
+    lot_size: '',
     notes: ''
   })
   const [loading, setLoading] = useState(false)
+  const [lookupLoading, setLookupLoading] = useState(false)
   const [error, setError] = useState('')
+  const [lookupSuccess, setLookupSuccess] = useState(false)
+
+  const handleAddressLookup = async () => {
+    if (!formData.address_line1.trim()) {
+      setError('Please enter an address first')
+      return
+    }
+
+    setLookupLoading(true)
+    setError('')
+    setLookupSuccess(false)
+
+    try {
+      const fullAddress = `${formData.address_line1}, ${formData.city}, ${formData.state} ${formData.postal_code}`.trim()
+      const response = await propertiesAPI.lookupAddress(fullAddress)
+      
+      if (response.data.success && response.data.property_data) {
+        const data = response.data.property_data
+        
+        // Auto-fill the form with looked up data
+        setFormData(prev => ({
+          ...prev,
+          bedrooms: data.bedrooms?.toString() || prev.bedrooms,
+          bathrooms: data.bathrooms?.toString() || prev.bathrooms,
+          square_feet: data.square_feet?.toString() || prev.square_feet,
+          year_built: data.year_built?.toString() || prev.year_built,
+          lot_size: data.lot_size?.toString() || prev.lot_size,
+          property_type: data.property_type?.toLowerCase() || prev.property_type
+        }))
+        
+        setLookupSuccess(true)
+        setTimeout(() => setLookupSuccess(false), 3000)
+      } else {
+        setError('No property data found for this address. You can still create the property manually.')
+      }
+    } catch (err: any) {
+      setError('Failed to lookup property data. You can still create the property manually.')
+    } finally {
+      setLookupLoading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -43,11 +88,28 @@ export default function PropertyForm({ onSuccess, onCancel }: PropertyFormProps)
 
     try {
       const data = {
-        ...formData,
-        num_rooms: formData.num_rooms ? parseInt(formData.num_rooms) : undefined,
+        address_line1: formData.address_line1,
+        address_line2: formData.address_line2,
+        city: formData.city,
+        state: formData.state,
+        postal_code: formData.postal_code,
+        unit_number: formData.unit_number,
+        property_type: formData.property_type,
+        bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : undefined,
+        bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : undefined,
         square_feet: formData.square_feet ? parseFloat(formData.square_feet) : undefined,
         year_built: formData.year_built ? parseInt(formData.year_built) : undefined,
+        lot_size: formData.lot_size ? parseFloat(formData.lot_size) : undefined,
+        notes: formData.notes
       }
+      
+      // Remove undefined values
+      Object.keys(data).forEach(key => {
+        if (data[key as keyof typeof data] === undefined) {
+          delete data[key as keyof typeof data]
+        }
+      })
+      
       await propertiesAPI.create(data)
       
       // Save preferences for next time
@@ -93,6 +155,12 @@ export default function PropertyForm({ onSuccess, onCancel }: PropertyFormProps)
         </div>
       )}
 
+      {lookupSuccess && (
+        <div className="mb-4 rounded-md bg-green-50 p-4">
+          <p className="text-sm text-green-800">✅ Property data found and auto-filled!</p>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
@@ -112,15 +180,33 @@ export default function PropertyForm({ onSuccess, onCancel }: PropertyFormProps)
             <label className="block text-sm font-medium text-gray-700">
               Address Line 1 *
             </label>
-            <input
-              type="text"
-              name="address_line1"
-              required
-              value={formData.address_line1}
-              onChange={handleChange}
-              placeholder="123 Main St"
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-            />
+            <div className="mt-1 flex rounded-md shadow-sm">
+              <input
+                type="text"
+                name="address_line1"
+                required
+                value={formData.address_line1}
+                onChange={handleChange}
+                placeholder="123 Main St"
+                className="flex-1 block w-full border border-gray-300 rounded-l-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              />
+              <button
+                type="button"
+                onClick={handleAddressLookup}
+                disabled={lookupLoading || !formData.address_line1.trim()}
+                className="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-gray-500 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Auto-fill property details"
+              >
+                {lookupLoading ? (
+                  <div className="animate-spin h-4 w-4 border-2 border-gray-300 border-t-primary-600 rounded-full"></div>
+                ) : (
+                  <SparklesIcon className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-gray-500">
+              Click the ✨ button to auto-fill property details from address
+            </p>
           </div>
 
           <div className="sm:col-span-2">
@@ -203,23 +289,42 @@ export default function PropertyForm({ onSuccess, onCancel }: PropertyFormProps)
               onChange={handleChange}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
             >
+              <option value="single family home">Single Family Home</option>
               <option value="apartment">Apartment</option>
-              <option value="house">House</option>
               <option value="condo">Condo</option>
               <option value="townhouse">Townhouse</option>
+              <option value="duplex">Duplex</option>
               <option value="other">Other</option>
             </select>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Number of Rooms
+              Bedrooms
             </label>
             <input
               type="number"
-              name="num_rooms"
-              value={formData.num_rooms}
+              name="bedrooms"
+              value={formData.bedrooms}
               onChange={handleChange}
+              min="0"
+              max="20"
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Bathrooms
+            </label>
+            <input
+              type="number"
+              name="bathrooms"
+              value={formData.bathrooms}
+              onChange={handleChange}
+              min="0"
+              max="20"
+              step="0.5"
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
             />
           </div>
@@ -233,6 +338,7 @@ export default function PropertyForm({ onSuccess, onCancel }: PropertyFormProps)
               name="square_feet"
               value={formData.square_feet}
               onChange={handleChange}
+              min="0"
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
             />
           </div>
@@ -249,6 +355,22 @@ export default function PropertyForm({ onSuccess, onCancel }: PropertyFormProps)
               placeholder={`e.g., ${new Date().getFullYear() - 10}`}
               min="1800"
               max={new Date().getFullYear()}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Lot Size (acres)
+            </label>
+            <input
+              type="number"
+              name="lot_size"
+              value={formData.lot_size}
+              onChange={handleChange}
+              min="0"
+              step="0.01"
+              placeholder="0.25"
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
             />
           </div>
