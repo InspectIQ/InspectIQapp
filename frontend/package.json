@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "vite --host",
-    "build": "vite build",
-    "build:clean": "vite build --mode production",
-    "preview": "vite preview",
+    "dev": "npx vite --host",
+    "build": "npx vite build",
+    "build:clean": "npx vite build --mode production",
+    "preview": "npx vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
