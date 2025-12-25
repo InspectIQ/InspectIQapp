@@ -3,7 +3,7 @@ services:
     name: inspectiq-backend
     env: python
     buildCommand: pip install fastapi uvicorn
-    startCommand: python simple_main.py
+    startCommand: python server.py
     envVars:
       - key: PORT
         value: 10000
