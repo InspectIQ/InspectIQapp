@@ -22,8 +22,27 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# CORS middleware - parse comma-separated origins
-cors_origins = [origin.strip() for origin in settings.cors_origins.split(",")]
+# CORS middleware - handle production domains explicitly
+import os
+cors_origins_env = os.environ.get("CORS_ORIGINS", settings.cors_origins)
+print(f"🔧 CORS_ORIGINS from env: {cors_origins_env}")
+
+# Parse comma-separated origins and add production domains
+cors_origins = [origin.strip() for origin in cors_origins_env.split(",")]
+
+# Ensure production domains are always included
+production_domains = [
+    "https://www.inspect-iq.app",
+    "https://inspect-iq.app",
+    "http://localhost:3000"
+]
+
+for domain in production_domains:
+    if domain not in cors_origins:
+        cors_origins.append(domain)
+
+print(f"🌐 Final CORS origins: {cors_origins}")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
@@ -114,6 +133,21 @@ async def root():
         "status": "running",
         "features": ["auth", "properties", "inspections", "ai-analysis", "file-upload", "pdf-export", "password-reset"],
         "environment": os.environ.get("RAILWAY_ENVIRONMENT", "unknown")
+    }
+
+
+@app.get("/cors-debug")
+async def cors_debug():
+    """Debug CORS configuration."""
+    cors_origins_env = os.environ.get("CORS_ORIGINS", "not_set")
+    frontend_url_env = os.environ.get("FRONTEND_URL", "not_set")
+    
+    return {
+        "cors_origins_env": cors_origins_env,
+        "frontend_url_env": frontend_url_env,
+        "settings_cors_origins": settings.cors_origins,
+        "settings_frontend_url": settings.frontend_url,
+        "all_env_vars": {k: v for k, v in os.environ.items() if "CORS" in k or "FRONTEND" in k}
     }
 
 
