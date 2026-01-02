@@ -100,17 +100,18 @@ async def startup_event():
                     print("ℹ️  lot_size column already exists")
                 
                 conn.commit()
+                
                 # Run enhanced inspections migration
-        print("🔧 Running enhanced inspections migration...")
-        try:
-            from backend.database.migrate_enhanced_inspections import migrate_enhanced_inspections, populate_default_checklists
-            migrate_enhanced_inspections()
-            populate_default_checklists()
-            print("✅ Enhanced inspections migration completed successfully")
-        except Exception as e:
-            print(f"⚠️  Enhanced inspections migration warning: {e}")
-        
-        print("✅ Alternative migration completed")
+                print("🔧 Running enhanced inspections migration...")
+                try:
+                    from backend.database.migrate_enhanced_inspections import migrate_enhanced_inspections, populate_default_checklists
+                    migrate_enhanced_inspections()
+                    populate_default_checklists()
+                    print("✅ Enhanced inspections migration completed successfully")
+                except Exception as e:
+                    print(f"⚠️  Enhanced inspections migration warning: {e}")
+                
+                print("✅ Alternative migration completed")
                 
         except Exception as alt_e:
             print(f"❌ Alternative migration also failed: {alt_e}")
