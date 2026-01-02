@@ -66,6 +66,15 @@ export const propertiesAPI = {
   
   delete: (id: number) =>
     api.delete(`/api/v1/properties/${id}`),
+  
+  lookupAddress: (address: string) =>
+    api.post('/api/v1/properties/lookup-address', { address }),
+  
+  quickCreate: (data: { address: string; property_type?: string; create_inspection?: boolean; inspection_type?: string }) =>
+    api.post('/api/v1/properties/quick-create', data),
+  
+  getTemplates: () =>
+    api.get('/api/v1/properties/templates'),
 }
 
 // Inspections API
@@ -95,6 +104,25 @@ export const inspectionsAPI = {
   
   delete: (id: number) =>
     api.delete(`/api/v1/inspections/${id}`),
+  
+  // New streamlining methods
+  quickCreate: (data: { property_id: number; inspection_type?: string; auto_create_rooms?: boolean }) =>
+    api.post('/api/v1/inspections/quick-create', data),
+  
+  bulkPhotoUpload: (files: File[], inspectionId: number, autoAssignRooms: boolean = true) => {
+    const formData = new FormData()
+    files.forEach(file => formData.append('files', file))
+    return api.post('/api/v1/inspections/bulk-photo-upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      params: { inspection_id: inspectionId, auto_assign_rooms: autoAssignRooms }
+    })
+  },
+  
+  getTemplates: () =>
+    api.get('/api/v1/inspections/templates'),
+  
+  autoAnalyze: (id: number) =>
+    api.post(`/api/v1/inspections/${id}/auto-analyze`),
 }
 
 // Files API
@@ -116,8 +144,57 @@ export const filesAPI = {
   },
 }
 
-// Admin API
-export const adminAPI = {
+// Enhanced Inspections API
+export const enhancedInspectionsAPI = {
+  // Checklists
+  getChecklists: (propertyType?: string, yearBuilt?: number, climateZone?: string) =>
+    api.get('/api/v1/enhanced-inspections/checklists', { 
+      params: { property_type: propertyType, year_built: yearBuilt, climate_zone: climateZone } 
+    }),
+  
+  getChecklistDetails: (checklistId: string) =>
+    api.get(`/api/v1/enhanced-inspections/checklists/${checklistId}`),
+  
+  getChecklistTests: (checklistId: string, category?: string) =>
+    api.get(`/api/v1/enhanced-inspections/checklists/${checklistId}/tests`, { 
+      params: { category } 
+    }),
+  
+  // Test Results
+  saveTestResult: (inspectionId: number, testData: any) =>
+    api.post(`/api/v1/enhanced-inspections/inspections/${inspectionId}/tests`, testData),
+  
+  getInspectionResults: (inspectionId: number) =>
+    api.get(`/api/v1/enhanced-inspections/inspections/${inspectionId}/results`),
+  
+  analyzeInspectionSystems: (inspectionId: number) =>
+    api.post(`/api/v1/enhanced-inspections/inspections/${inspectionId}/analyze`),
+  
+  // Templates
+  getInspectionTemplates: (propertyType?: string, purpose?: string) =>
+    api.get('/api/v1/enhanced-inspections/templates', { 
+      params: { property_type: propertyType, purpose } 
+    }),
+  
+  // Measurements
+  saveMeasurementReading: (inspectionId: number, measurementData: any) =>
+    api.post(`/api/v1/enhanced-inspections/inspections/${inspectionId}/measurements`, measurementData),
+  
+  // Professional Tools
+  getAvailableTools: () =>
+    api.get('/api/v1/enhanced-inspections/tools/available'),
+  
+  connectTool: (toolId: string) =>
+    api.post(`/api/v1/enhanced-inspections/tools/${toolId}/connect`),
+  
+  inputToolReading: (toolId: string, readingData: any) =>
+    api.post(`/api/v1/enhanced-inspections/tools/${toolId}/reading`, readingData),
+  
+  getToolRecommendations: (testType: string, measurementType: string) =>
+    api.get('/api/v1/enhanced-inspections/tools/recommendations', { 
+      params: { test_type: testType, measurement_type: measurementType } 
+    }),
+}
   getDashboardStats: () =>
     api.get('/api/v1/admin/dashboard'),
   

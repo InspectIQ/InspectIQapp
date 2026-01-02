@@ -28,6 +28,36 @@ class InspectionType(str, enum.Enum):
     ROUTINE = "routine"
     PRE_SALE = "pre_sale"
     POST_RENOVATION = "post_renovation"
+    COMPREHENSIVE = "comprehensive"  # New: includes testing protocols
+
+
+class TestType(str, enum.Enum):
+    VISUAL = "visual"
+    MEASUREMENT = "measurement"
+    FUNCTIONAL = "functional"
+    SAFETY = "safety"
+    DIAGNOSTIC = "diagnostic"
+
+
+class TestResult(str, enum.Enum):
+    PASS = "pass"
+    FAIL = "fail"
+    WARNING = "warning"
+    NOT_TESTED = "not_tested"
+    NOT_APPLICABLE = "not_applicable"
+
+
+class MeasurementUnit(str, enum.Enum):
+    PSI = "psi"
+    VOLTS = "volts"
+    AMPS = "amps"
+    FAHRENHEIT = "fahrenheit"
+    CELSIUS = "celsius"
+    PERCENT = "percent"
+    DECIBELS = "decibels"
+    PPM = "ppm"
+    CFM = "cfm"
+    GPM = "gpm"
 
 
 class User(Base):
@@ -270,3 +300,198 @@ class Payment(Base):
     # Metadata
     description = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+# Enhanced Inspection Models for Professional Testing
+
+class InspectionChecklist(Base):
+    """Professional inspection checklists with testing protocols."""
+    __tablename__ = "inspection_checklists"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    checklist_id = Column(String, unique=True, nullable=False)  # hvac_comprehensive, electrical_safety
+    name = Column(String, nullable=False)
+    description = Column(Text)
+    
+    # Applicability
+    property_types = Column(JSON)  # ["single_family", "condo"]
+    applicable_years = Column(JSON)  # {"min": 1950, "max": 2024}
+    climate_zones = Column(JSON)  # ["cold", "temperate", "hot"]
+    
+    # Metadata
+    estimated_time = Column(Integer)  # minutes
+    required_certifications = Column(JSON)  # ["electrical_safety"]
+    
+    # Status
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    tests = relationship("InspectionTest", back_populates="checklist")
+
+
+class InspectionTest(Base):
+    """Individual tests within inspection checklists."""
+    __tablename__ = "inspection_tests"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    checklist_id = Column(Integer, ForeignKey("inspection_checklists.id"), nullable=False)
+    
+    # Test identification
+    test_id = Column(String, nullable=False)  # heat_functionality, gfci_outlet_test
+    name = Column(String, nullable=False)
+    description = Column(Text)
+    category = Column(String, nullable=False)  # HVAC, Electrical, Plumbing
+    
+    # Test parameters
+    test_type = Column(Enum(TestType), nullable=False)
+    instructions = Column(Text, nullable=False)
+    safety_notes = Column(Text)
+    required_tools = Column(JSON)  # ["multimeter", "thermometer"]
+    
+    # Expected results
+    expected_result = Column(Text)
+    acceptable_range = Column(JSON)  # {"min": 114.0, "max": 126.0}
+    measurement_unit = Column(Enum(MeasurementUnit))
+    
+    # Metadata
+    order_index = Column(Integer, default=0)
+    is_required = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    checklist = relationship("InspectionChecklist", back_populates="tests")
+    results = relationship("TestResult", back_populates="test")
+
+
+class TestResult(Base):
+    """Results from performing inspection tests."""
+    __tablename__ = "test_results"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    inspection_id = Column(Integer, ForeignKey("inspections.id"), nullable=False)
+    test_id = Column(Integer, ForeignKey("inspection_tests.id"), nullable=False)
+    
+    # Test results
+    result = Column(Enum(TestResult), default=TestResult.NOT_TESTED)
+    measured_value = Column(Float)
+    notes = Column(Text)
+    photos = Column(JSON)  # ["photo1.jpg", "photo2.jpg"]
+    
+    # AI analysis
+    ai_analysis = Column(Text)
+    risk_level = Column(String)  # low, medium, high, critical
+    
+    # Metadata
+    tested_by = Column(Integer, ForeignKey("users.id"))
+    tested_at = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    inspection = relationship("Inspection")
+    test = relationship("InspectionTest", back_populates="results")
+    tester = relationship("User")
+
+
+class SystemDiagnostic(Base):
+    """Overall system health diagnostics."""
+    __tablename__ = "system_diagnostics"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    inspection_id = Column(Integer, ForeignKey("inspections.id"), nullable=False)
+    
+    # System information
+    system_name = Column(String, nullable=False)  # HVAC, Electrical, Plumbing
+    overall_condition = Column(String)  # excellent, good, fair, poor, critical
+    
+    # Performance metrics
+    efficiency_rating = Column(Float)  # 0.0 - 1.0
+    safety_score = Column(Float)  # 0.0 - 1.0
+    code_compliance = Column(Boolean)
+    
+    # Issues and recommendations
+    critical_issues = Column(JSON)  # ["Exposed wiring", "Gas leak"]
+    warnings = Column(JSON)  # ["Low water pressure", "Dirty filter"]
+    recommendations = Column(JSON)  # ["Replace HVAC filter", "Upgrade panel"]
+    
+    # Cost estimates
+    immediate_repairs = Column(Float)
+    preventive_maintenance = Column(Float)
+    replacement_timeline = Column(String)  # "2-3 years", "immediate"
+    
+    # AI analysis
+    ai_summary = Column(Text)
+    confidence_score = Column(Float)  # 0.0 - 1.0
+    
+    # Metadata
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    inspection = relationship("Inspection")
+
+
+class MeasurementReading(Base):
+    """Individual measurement readings from professional tools."""
+    __tablename__ = "measurement_readings"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    test_result_id = Column(Integer, ForeignKey("test_results.id"), nullable=False)
+    
+    # Measurement details
+    measurement_type = Column(String, nullable=False)  # voltage, pressure, temperature
+    value = Column(Float, nullable=False)
+    unit = Column(Enum(MeasurementUnit), nullable=False)
+    location = Column(String)  # "main panel", "kitchen sink", "master bedroom"
+    
+    # Tool information
+    tool_used = Column(String)  # "Fluke 87V Multimeter", "Pressure Gauge"
+    calibration_date = Column(Date)
+    
+    # Context
+    conditions = Column(Text)  # "System running for 10 minutes", "All fixtures off"
+    notes = Column(Text)
+    
+    # Metadata
+    measured_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    test_result = relationship("TestResult")
+
+
+class InspectionTemplate(Base):
+    """Templates for different inspection types and scenarios."""
+    __tablename__ = "inspection_templates"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    template_id = Column(String, unique=True, nullable=False)
+    name = Column(String, nullable=False)
+    description = Column(Text)
+    
+    # Applicability
+    property_types = Column(JSON)  # ["single_family", "condo"]
+    inspection_purposes = Column(JSON)  # ["purchase", "maintenance", "insurance"]
+    
+    # Template configuration
+    visual_inspection = Column(Boolean, default=True)
+    system_testing = Column(Boolean, default=True)
+    measurements = Column(Boolean, default=True)
+    code_compliance = Column(Boolean, default=True)
+    
+    # Checklists to include
+    required_checklists = Column(JSON)  # ["hvac_comprehensive", "electrical_safety"]
+    optional_checklists = Column(JSON)  # ["plumbing_performance"]
+    
+    # Customization
+    custom_tests = Column(JSON)  # Additional test definitions
+    regional_requirements = Column(JSON)  # State/region specific requirements
+    
+    # Metadata
+    is_active = Column(Boolean, default=True)
+    created_by = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    creator = relationship("User")

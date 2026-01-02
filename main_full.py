@@ -5,7 +5,7 @@ from backend.api.auth_routes import router as auth_router
 from backend.api.property_routes import router as property_router
 from backend.api.inspection_routes import router as inspection_router
 from backend.api.file_routes import router as file_router
-from backend.api.admin_routes import router as admin_router
+from backend.api.enhanced_inspection_routes import router as enhanced_inspection_router
 from backend.api.setup_routes import router as setup_router
 from backend.database.database import init_db
 from config.settings import get_settings
@@ -100,7 +100,17 @@ async def startup_event():
                     print("ℹ️  lot_size column already exists")
                 
                 conn.commit()
-                print("✅ Alternative migration completed")
+                # Run enhanced inspections migration
+        print("🔧 Running enhanced inspections migration...")
+        try:
+            from backend.database.migrate_enhanced_inspections import migrate_enhanced_inspections, populate_default_checklists
+            migrate_enhanced_inspections()
+            populate_default_checklists()
+            print("✅ Enhanced inspections migration completed successfully")
+        except Exception as e:
+            print(f"⚠️  Enhanced inspections migration warning: {e}")
+        
+        print("✅ Alternative migration completed")
                 
         except Exception as alt_e:
             print(f"❌ Alternative migration also failed: {alt_e}")
@@ -113,6 +123,7 @@ app.include_router(property_router, prefix="/api/v1")
 app.include_router(inspection_router, prefix="/api/v1")
 app.include_router(file_router, prefix="/api/v1")
 app.include_router(admin_router, prefix="/api/v1")
+app.include_router(enhanced_inspection_router, prefix="/api/v1")
 app.include_router(setup_router, prefix="/api/v1")  # Temporary - remove after first admin
 
 # Add legacy workflow routes if available
@@ -165,4 +176,3 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
-
