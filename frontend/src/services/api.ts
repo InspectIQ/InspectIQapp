@@ -195,6 +195,9 @@ export const enhancedInspectionsAPI = {
       params: { test_type: testType, measurement_type: measurementType } 
     }),
 }
+
+// Admin API
+export const adminAPI = {
   getDashboardStats: () =>
     api.get('/api/v1/admin/dashboard'),
   
