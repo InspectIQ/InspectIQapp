@@ -32,6 +32,55 @@ class MeasurementUnit(str, Enum):
     CFM = "cfm"  # Cubic feet per minute
 
 
+# Legacy schemas for existing inspection routes
+class InspectionCreate(BaseModel):
+    """Schema for creating inspections (legacy compatibility)."""
+    property_id: int
+    inspection_type: str = "routine"
+    notes: Optional[str] = None
+
+
+class InspectionResponse(BaseModel):
+    """Schema for inspection responses (legacy compatibility)."""
+    id: int
+    property_id: int
+    inspector_id: int
+    inspection_type: str
+    status: str
+    notes: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+
+class RoomCreate(BaseModel):
+    """Schema for creating rooms (legacy compatibility)."""
+    name: str
+    room_type: str
+    notes: Optional[str] = None
+
+
+class RoomResponse(BaseModel):
+    """Schema for room responses (legacy compatibility)."""
+    id: int
+    inspection_id: int
+    name: str
+    room_type: str
+    notes: Optional[str] = None
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+
+class InspectionAnalyzeRequest(BaseModel):
+    """Schema for inspection analysis requests (legacy compatibility)."""
+    inspection_id: int
+    analysis_type: Optional[str] = "full"
+
+
 class InspectionTest(BaseModel):
     """Individual test within an inspection checklist."""
     id: str
