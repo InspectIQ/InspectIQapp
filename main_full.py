@@ -5,6 +5,7 @@ from backend.api.auth_routes import router as auth_router
 from backend.api.property_routes import router as property_router
 from backend.api.inspection_routes import router as inspection_router
 from backend.api.file_routes import router as file_router
+from backend.api.admin_routes import router as admin_router
 from backend.api.enhanced_inspection_routes import router as enhanced_inspection_router
 from backend.api.setup_routes import router as setup_router
 from backend.database.database import init_db
