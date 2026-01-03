@@ -16,79 +16,79 @@ from backend.schemas.inspection_extended import (
     InspectionTemplate as InspectionTemplateSchema
 )
 from backend.auth.auth import get_current_active_user
-from backend.services.tool_integration_service import tool_integration_service
+# from backend.services.tool_integration_service import tool_integration_service
 from backend.data.inspection_checklists import ALL_CHECKLISTS, get_checklist_for_property
 import json
 
 router = APIRouter(prefix="/enhanced-inspections", tags=["enhanced-inspections"])
 
 
-# Tool Integration Endpoints
+# Tool Integration Endpoints (temporarily disabled for deployment)
 
-@router.get("/tools/available")
-async def get_available_tools(
-    current_user: User = Depends(get_current_active_user)
-):
-    """Get list of available professional tools."""
-    return await tool_integration_service.get_available_tools()
-
-
-@router.post("/tools/{tool_id}/connect")
-async def connect_tool(
-    tool_id: str,
-    current_user: User = Depends(get_current_active_user)
-):
-    """Connect to a professional tool."""
-    return await tool_integration_service.connect_tool(tool_id)
+# @router.get("/tools/available")
+# async def get_available_tools(
+#     current_user: User = Depends(get_current_active_user)
+# ):
+#     """Get list of available professional tools."""
+#     return await tool_integration_service.get_available_tools()
 
 
-@router.post("/tools/{tool_id}/reading")
-async def input_tool_reading(
-    tool_id: str,
-    reading_data: Dict[str, Any],
-    current_user: User = Depends(get_current_active_user)
-):
-    """Input a manual reading from a professional tool."""
+# @router.post("/tools/{tool_id}/connect")
+# async def connect_tool(
+#     tool_id: str,
+#     current_user: User = Depends(get_current_active_user)
+# ):
+#     """Connect to a professional tool."""
+#     return await tool_integration_service.connect_tool(tool_id)
+
+
+# @router.post("/tools/{tool_id}/reading")
+# async def input_tool_reading(
+#     tool_id: str,
+#     reading_data: Dict[str, Any],
+#     current_user: User = Depends(get_current_active_user)
+# ):
+#     """Input a manual reading from a professional tool."""
     
-    reading = await tool_integration_service.input_manual_reading(
-        tool_id=tool_id,
-        measurement_type=reading_data["measurement_type"],
-        value=reading_data["value"],
-        unit=reading_data["unit"],
-        location=reading_data.get("location"),
-        conditions=reading_data.get("conditions"),
-        tool_model=reading_data.get("tool_model")
-    )
+#     reading = await tool_integration_service.input_manual_reading(
+#         tool_id=tool_id,
+#         measurement_type=reading_data["measurement_type"],
+#         value=reading_data["value"],
+#         unit=reading_data["unit"],
+#         location=reading_data.get("location"),
+#         conditions=reading_data.get("conditions"),
+#         tool_model=reading_data.get("tool_model")
+#     )
     
-    # Validate the reading
-    validation = await tool_integration_service.validate_reading(
-        reading, 
-        reading_data.get("expected_range")
-    )
+#     # Validate the reading
+#     validation = await tool_integration_service.validate_reading(
+#         reading, 
+#         reading_data.get("expected_range")
+#     )
     
-    return {
-        "reading": {
-            "tool_type": reading.tool_type.value,
-            "measurement_type": reading.measurement_type,
-            "value": reading.value,
-            "unit": reading.unit.value,
-            "timestamp": reading.timestamp.isoformat(),
-            "location": reading.location,
-            "tool_model": reading.tool_model,
-            "conditions": reading.conditions
-        },
-        "validation": validation
-    }
+#     return {
+#         "reading": {
+#             "tool_type": reading.tool_type.value,
+#             "measurement_type": reading.measurement_type,
+#             "value": reading.value,
+#             "unit": reading.unit.value,
+#             "timestamp": reading.timestamp.isoformat(),
+#             "location": reading.location,
+#             "tool_model": reading.tool_model,
+#             "conditions": reading.conditions
+#         },
+#         "validation": validation
+#     }
 
 
-@router.get("/tools/recommendations")
-async def get_tool_recommendations(
-    test_type: str,
-    measurement_type: str,
-    current_user: User = Depends(get_current_active_user)
-):
-    """Get recommended tools for a specific test."""
-    return await tool_integration_service.get_tool_recommendations(test_type, measurement_type)
+# @router.get("/tools/recommendations")
+# async def get_tool_recommendations(
+#     test_type: str,
+#     measurement_type: str,
+#     current_user: User = Depends(get_current_active_user)
+# ):
+#     """Get recommended tools for a specific test."""
+#     return await tool_integration_service.get_tool_recommendations(test_type, measurement_type)
 
 
 @router.get("/checklists", response_model=List[InspectionChecklistSchema])
